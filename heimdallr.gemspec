@@ -2,9 +2,9 @@ $:.push File.expand_path('../lib', __FILE__)
 
 require 'heimdallr/version'
 
-Gem::Specification.new do |s|
-  s.name            = 'heimdallr'
-  s.version         = Heimdallr::VERSION
+Gem::Specification.new do |spec|
+  spec.name         = 'heimdallr'
+  spec.version      = Heimdallr::VERSION
   spec.authors      = ['Nate Strandberg']
   spec.email        = ['nate@juliabalfour.com']
 
