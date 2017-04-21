@@ -21,6 +21,9 @@ Gem::Specification.new do |spec|
   end
   spec.files = Dir['{app,config,lib}/**/*', 'Rakefile', 'README.md']
 
+  spec.cert_chain  = ['certs/juliabalfour.pem']
+  spec.signing_key = File.expand_path('~/.ssh/gem-private_key.pem') if $0 =~ /gem\z/
+
   spec.require_paths = ['lib']
 
   spec.required_ruby_version = '>= 2.3'
