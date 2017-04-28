@@ -1,5 +1,4 @@
-Heimdallr::Engine.setup do |config|
-
+Heimdallr.setup do |config|
   config.jwt_algorithm = 'HS512'
   config.issuer = 'TODO: Token Issuer'
 
@@ -13,5 +12,4 @@ Heimdallr::Engine.setup do |config|
 
   # All available scopes (CRUD)
   config.declare_crud_scopes = 'users'
-
 end

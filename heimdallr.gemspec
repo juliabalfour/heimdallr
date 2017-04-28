@@ -1,24 +1,31 @@
-$:.push File.expand_path("../lib", __FILE__)
+$:.push File.expand_path('../lib', __FILE__)
 
-# Maintain your gem's version:
-require "heimdallr/version"
+require 'heimdallr/version'
 
-# Describe your gem and declare its dependencies:
-Gem::Specification.new do |s|
-  s.name        = "heimdallr"
-  s.version     = Heimdallr::VERSION
-  s.authors     = ["Nick Brabant"]
-  s.email       = ["nick@juliabalfour.com"]
-  s.homepage    = "https://github.com/juliabalfour/heimdallr"
-  s.summary     = "JWT Middleware for Ruby on Rails"
-  s.description = "JWT Authorization engine"
-  s.license     = "MIT"
+Gem::Specification.new do |spec|
+  spec.name        = 'heimdallr'
+  spec.version     = Heimdallr::VERSION
+  spec.authors     = ['Nick Brabant', 'Nate Strandberg']
+  spec.email       = %w[nick@juliabalfour.com nate@juliabalfour.com]
+  spec.homepage    = 'https://github.com/juliabalfour/heimdallr'
+  spec.summary     = 'JWT Middleware for Ruby on Rails'
+  spec.description = 'JWT Authorization engine'
+  spec.license     = 'MIT'
 
-  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+  spec.files         = `git ls-files`.split("\n")
+  spec.test_files    = `git ls-files -- spec/*`.split("\n")
+  spec.require_paths = ['lib']
 
-  s.add_dependency "rails", ">= 5.1.0.rc2"
-  s.add_dependency "jwt", "~> 1.5.6"
+  spec.add_dependency 'railties', '>= 5.1.0'
+  spec.add_dependency 'jwt', '~> 1.5.6'
 
-  s.add_development_dependency "sqlite3"
-  s.add_development_dependency "bump"
+  spec.add_development_dependency 'timecop'
+  spec.add_development_dependency 'capybara'
+  spec.add_development_dependency 'coveralls'
+  spec.add_development_dependency 'awesome_print'
+  spec.add_development_dependency 'database_cleaner', '~> 1.5.3'
+  spec.add_development_dependency 'factory_girl', '~> 4.7.0'
+  spec.add_development_dependency 'generator_spec', '~> 0.9.3'
+  spec.add_development_dependency 'rake', '>= 11.3.0'
+  spec.add_development_dependency 'rspec-rails'
 end
