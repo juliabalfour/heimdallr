@@ -1,3 +1,5 @@
---color
+--colour
 --require spec_helper
 --format documentation
+--tty
+--order random

@@ -17,15 +17,19 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'railties', '>= 5.1.0'
+  spec.add_dependency 'graphql', '>= 1.5.10'
   spec.add_dependency 'jwt', '~> 1.5.6'
 
-  spec.add_development_dependency 'timecop'
-  spec.add_development_dependency 'capybara'
+  spec.add_development_dependency 'faker'
   spec.add_development_dependency 'coveralls'
+  spec.add_development_dependency 'rspec-rails'
   spec.add_development_dependency 'awesome_print'
-  spec.add_development_dependency 'database_cleaner', '~> 1.5.3'
+  spec.add_development_dependency 'pg', '~> 0.20'
+  spec.add_development_dependency 'shoulda-matchers'
+  spec.add_development_dependency 'rake', '>= 11.3.0'
+  spec.add_development_dependency 'rails', '~> 5.1.0'
+  spec.add_development_dependency 'factory_girl_rails'
   spec.add_development_dependency 'factory_girl', '~> 4.7.0'
   spec.add_development_dependency 'generator_spec', '~> 0.9.3'
-  spec.add_development_dependency 'rake', '>= 11.3.0'
-  spec.add_development_dependency 'rspec-rails'
+  spec.add_development_dependency 'database_cleaner', '~> 1.5.3'
 end

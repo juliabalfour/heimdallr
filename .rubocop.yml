@@ -15,6 +15,9 @@ Rails:
 Bundler/OrderedGems:
   Enabled: false
 
+Style/RegexpLiteral:
+  Enabled: false
+
 Style/Documentation:
   Enabled: false
 

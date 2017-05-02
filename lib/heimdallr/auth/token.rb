@@ -25,13 +25,13 @@ module Heimdallr
             exp_leeway: Heimdallr.expiration_leeway
           }
 
-          if algorithm.start_with?('RS')
+          if %w[RS256 RS384 RS512].include?(algorithm)
 
             # Load the private key file & decode using the public key
             rsa_private = OpenSSL::PKey::RSA.new File.read(Heimdallr.private_key_path)
             decoded_token, = JWT.decode(token_string, rsa_private.public_key, true, options)
 
-          elsif algorithm.start_with?('ES')
+          elsif %w[ES256 ES384 ES512].include?(algorithm)
 
             ecdsa_key     = OpenSSL::PKey::EC.new File.read(Heimdallr.private_key_path)
             ecdsa_public  = OpenSSL::PKey::EC.new ecdsa_key
@@ -39,7 +39,7 @@ module Heimdallr
 
             decoded_token, = JWT.decode(token_string, ecdsa_public, true, options)
 
-          elsif algorithm.start_with?('HS')
+          elsif %w[HS256 HS384 HS512].include?(algorithm)
             decoded_token, = JWT.decode(token_string, Heimdallr.secret_key, true, options)
           else
             raise ArgumentError, "Unable to decode token, `#{algorithm}` is invalid."
@@ -183,13 +183,13 @@ module Heimdallr
         payload.delete_if { |_, value| value.nil? }
 
         algorithm = Heimdallr.jwt_algorithm.upcase
-        if algorithm.start_with?('RS')
+        if %w[RS256 RS384 RS512].include?(algorithm)
           rsa_private = OpenSSL::PKey::RSA.new File.read(Heimdallr.private_key_path)
           issued_token = JWT.encode(payload, rsa_private, algorithm)
-        elsif algorithm.start_with?('ES')
+        elsif %w[ES256 ES384 ES512].include?(algorithm)
           ecdsa_key = OpenSSL::PKey::EC.new File.read(Heimdallr.private_key_path)
           issued_token = JWT.encode(payload, ecdsa_key, algorithm)
-        elsif algorithm.start_with?('HS')
+        elsif %w[HS256 HS384 HS512].include?(algorithm)
           issued_token = JWT.encode(payload, Heimdallr.secret_key, algorithm)
         else
           raise ArgumentError, "Unable to issue token, `#{algorithm}` is invalid."

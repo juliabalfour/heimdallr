@@ -10,6 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170426145812) do
+ActiveRecord::Schema.define(version: 20170501133533) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+  enable_extension "pgcrypto"
+  enable_extension "uuid-ossp"
+
+# Could not dump table "heimdallr_applications" because of following StandardError
+#   Unknown type 'heimdallr_algorithm' for column 'algorithm'
+
+  create_table "heimdallr_tokens", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "application_id"
+    t.text "token", null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.index ["application_id"], name: "index_heimdallr_tokens_on_application_id"
+  end
 
 end
