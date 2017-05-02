@@ -3,173 +3,130 @@ require 'openssl'
 
 module Heimdallr
   module Auth
-    class Token
-      attr_accessor :data, :error, :subject, :audience, :not_before, :jwt_id, :issuer, :expiration_time
-      attr_reader :additional_claims
+    class TokenError < StandardError
+      attr_accessor :title, :status, :links
+      def initialize(title:, detail:, status: 403, links: {})
+        @title  = title
+        @status = status
+        @links  = links
+        super(detail)
+      end
+    end
 
-      # Decodes an existing JWT.
+    # JWT class for creating new & decoding existing tokens.
+    #
+    # @attr [Hash] data The token data payload.
+    # @attr [String] subject Optional subject (SUB) claim.
+    # @attr [String] audience Optional audience (AUD) claim.
+    # @attr [Integer] not_before Optional not-before (NBF) claim.
+    # @attr [String] jwt_id Optional JWT ID (JTI) claim.
+    # @attr [String] issuer Optional issuer (ISS) claim.
+    # @attr [Integer] expiration_time Optional expiration time (EXP) claim. If this is not provided, then `Heimdallr.expiration_time.from_now.to_i` will be used instead.
+    # @attr_reader [Hash] additional_claims Additional claims to include.
+    # @attr_reader [Heimdallr::Application] application The application associated with this token.
+    class Token
+      attr_accessor :data, :subject, :audience, :not_before, :jwt_id, :issuer, :expiration_time
+      attr_reader :additional_claims, :application
+
+      CLAIM_EXPIRATION_TIME = 'exp'.freeze
+      CLAIM_NOT_BEFORE  = 'nbf'.freeze
+      CLAIM_ISSUED_AT   = 'iat'.freeze
+      CLAIM_AUDIENCE    = 'aud'.freeze
+      CLAIM_SUBJECT     = 'sub'.freeze
+      CLAIM_ISSUER      = 'iss'.freeze
+      CLAIM_JWT_ID      = 'jti'.freeze
+      CLAIM_APP_ID      = 'app'.freeze
+
+      # Attempts to decode a JWT from a string.
+      # Note: If the token is successfully decoded, it will be frozen when returned.
       #
-      # @param [String] token_string The token to decode.
-      # @param [String] algorithm The algorithm to use for decoding.
+      # @param [String] token_string
       # @return [Token]
-      def self.decode(token_string:, algorithm: Heimdallr.jwt_algorithm)
-        decoded_token = nil
-        error         = nil
-        algorithm.upcase!
+      def self.from_string(token_string)
+        algorithm = Heimdallr.jwt_algorithm.upcase
 
         begin
           options = {
             verify_iss: true,
             verify_iat: true,
             algorithm: algorithm,
-            exp_leeway: Heimdallr.expiration_leeway
+            exp_leeway: Heimdallr.expiration_leeway,
+            nbf_leeway: Heimdallr.expiration_leeway
           }
 
-          if %w[RS256 RS384 RS512].include?(algorithm)
+          token = new
 
-            # Load the private key file & decode using the public key
-            rsa_private = OpenSSL::PKey::RSA.new File.read(Heimdallr.private_key_path)
-            decoded_token, = JWT.decode(token_string, rsa_private.public_key, true, options)
+          # Try to decode the provided string
+          payload, = JWT.decode(token_string, nil, true, options) do |header|
+            app = Heimdallr::Application.find(header.fetch(CLAIM_APP_ID))
+            token.application = app
 
-          elsif %w[ES256 ES384 ES512].include?(algorithm)
-
-            ecdsa_key     = OpenSSL::PKey::EC.new File.read(Heimdallr.private_key_path)
-            ecdsa_public  = OpenSSL::PKey::EC.new ecdsa_key
-            ecdsa_public.private_key = nil
-
-            decoded_token, = JWT.decode(token_string, ecdsa_public, true, options)
-
-          elsif %w[HS256 HS384 HS512].include?(algorithm)
-            decoded_token, = JWT.decode(token_string, Heimdallr.secret_key, true, options)
-          else
-            raise ArgumentError, "Unable to decode token, `#{algorithm}` is invalid."
+            # Get the super top secret magical value!
+            app.secret_or_certificate(header.fetch('alg'))
           end
+
+          # Store all the claims & return a lightly chilled token!
+          token.expiration_time = payload.fetch(CLAIM_EXPIRATION_TIME, nil)
+          token.audience = payload.fetch(CLAIM_AUDIENCE, nil)
+          token.subject  = payload.fetch(CLAIM_SUBJECT, nil)
+          token.jwt_id   = payload.fetch(CLAIM_JWT_ID, nil)
+          token.issuer   = payload.fetch(CLAIM_ISSUER, nil)
+          token.data     = payload.fetch('data')
+          return token.freeze
+
         rescue JWT::VerificationError
-          error = {
-            title: 'Invalid Token',
-            detail: 'The provided JWT is invalid. Please acquire a new token and try your request again.',
-            status: 403
-          }
+          raise TokenError.new(title: 'Invalid Token', detail: 'The provided JWT is invalid. Please acquire a new token and try your request again.')
         rescue JWT::ExpiredSignature
-          error = {
-            title: 'Expired Token',
-            detail: 'The provided JWT is expired. Please acquire a new token and try your request again.',
-            status: 403,
-            links: {
-              about: 'https://tools.ietf.org/html/rfc7519#section-4.1.4'
-            }
-          }
+          raise TokenError.new(title: 'Expired Token', detail: 'The provided JWT is expired. Please acquire a new token and try your request again.', links: { about: 'https://tools.ietf.org/html/rfc7519#section-4.1.4' })
         rescue JWT::IncorrectAlgorithm
-          error = {
-            title: 'Incorrect Algorithm',
-            detail: 'The provided JWT was signed with an incorrect algorithm. Please acquire a new token and try your request again.',
-            status: 403
-          }
+          raise TokenError.new(title: 'Incorrect Algorithm', detail: 'The provided JWT was signed with an incorrect algorithm. Please acquire a new token and try your request again.')
         rescue JWT::ImmatureSignature
-          error = {
-            title: 'Invalid NBF Claim',
-            detail: 'The provided JWT is not valid yet and cannot be used.',
-            status: 403,
-            links: {
-              about: 'https://tools.ietf.org/html/rfc7519#section-4.1.5'
-            }
-          }
+          raise TokenError.new(title: 'Invalid NBF Claim', detail: 'The provided JWT is not valid yet and cannot be used.', links: { about: 'https://tools.ietf.org/html/rfc7519#section-4.1.5' })
         rescue JWT::InvalidIssuerError
-          error = {
-            title: 'Invalid ISS Claim',
-            detail: 'The provided JWT has an unexpected issuer value. Please acquire a new token and try your request again.',
-            status: 403,
-            links: {
-              about: 'https://tools.ietf.org/html/rfc7519#section-4.1.1'
-            }
-          }
+          raise TokenError.new(title: 'Invalid ISS Claim', detail: 'The provided JWT has an unexpected issuer value. Please acquire a new token and try your request again.', links: { about: 'https://tools.ietf.org/html/rfc7519#section-4.1.1' })
         rescue JWT::InvalidIatError
-          error = {
-            title: 'Invalid IAT Claim',
-            detail: 'The provided JWT is expired or has a malformed header. Please acquire a new token and try your request again.',
-            status: 403,
-            links: {
-              about: 'https://tools.ietf.org/html/rfc7519#section-4.1.6'
-            }
-          }
+          raise TokenError.new(title: 'Invalid IAT Claim', detail: 'The provided JWT is expired or has a malformed header. Please acquire a new token and try your request again.', links: { about: 'https://tools.ietf.org/html/rfc7519#section-4.1.6' })
         rescue JWT::InvalidSubError
-          error = {
-            title: 'Invalid SUB Claim',
-            detail: 'The provided JWT has an unexpected subject and cannot be used. Please acquire a new token and try your request again.',
-            status: 403,
-            links: {
-              about: 'https://tools.ietf.org/html/rfc7519#section-4.1.2'
-            }
-          }
+          raise TokenError.new(title: 'Invalid SUB Claim', detail: 'The provided JWT is expired or has a malformed header. Please acquire a new token and try your request again.', links: { about: 'https://tools.ietf.org/html/rfc7519#section-4.1.2' })
         rescue JWT::InvalidJtiError
-          error = {
-            title: 'Invalid JTI Claim',
-            detail: 'The provided JWT has an unexpected identifier and cannot be used. Please acquire a new token and try your request again.',
-            status: 422,
-            links: {
-              about: 'https://tools.ietf.org/html/rfc7519#section-4.1.7'
-            }
-          }
+          raise TokenError.new(title: 'Invalid JTI Claim', detail: 'The provided JWT is expired or has a malformed header. Please acquire a new token and try your request again.', links: { about: 'https://tools.ietf.org/html/rfc7519#section-4.1.7' })
         rescue JWT::DecodeError => err
-          error = {
-            title: 'Unexpected Error',
-            detail: err.message,
-            status: 400
-          }
+          raise TokenError.new(title: 'Invalid Token', detail: err.message, status: 400)
         rescue JWT::InvalidPayload => err
-          error = {
-            title: 'Unexpected Error',
-            detail: err.message,
-            status: 400
-          }
+          raise TokenError.new(title: 'Invalid Token', detail: err.message, status: 400)
         end
-
-        token = new
-        if decoded_token.is_a?(Hash)
-          decoded_token.deep_symbolize_keys!
-          token.data      = decoded_token.fetch(:data)
-          token.subject   = decoded_token.fetch(:sub) { nil }
-          token.issuer    = decoded_token.fetch(:iss) { nil }
-          token.audience  = decoded_token.fetch(:aud) { nil }
-          token.expiration_time = decoded_token.fetch(:exp)
-        else
-          token.error = error
-        end
-
-        token.freeze
       end
 
-      # Constructor
-      #
-      # @param [Hash] data Payload data to include.
+      # This is my constructor, there are many others like it, but this one is mine.
       def initialize(data = {})
         @additional_claims = {}
         @data = data
       end
 
-      # Whether or not there was an error decoding this token.
+      # Application setter method.
       #
-      # @return [Boolean]
-      def error?
-        @error.present?
+      # @param [Heimdallr::Application] app
+      def application=(app)
+        raise ArgumentError, "Expected argument to be `Heimdallr::Application`; received #{app.class}" unless app.is_a?(Heimdallr::Application)
+        @application = app
+        self
       end
 
-      # Adds a public claim.
+      # Adds an additional claim to this token.
       #
-      # @param [String,Symbol] claim The claim to add.
-      # @param [Object] value The claim value.
-      # @return [self]
+      # @param [String, Symbol] claim The name.
+      # @param [Object] value The value.
       def add_claim(claim:, value:)
-        claim.to_s.downcase!.to_sym
+        claim = claim.to_s.downcase.to_sym
         @additional_claims[claim] = value
         self
       end
 
-      # Converts the token instance to a JWT string.
+      # Encodes this token into a JWT string.
       # Adds IAT, EXP, ISS claims automatically.
       #
       # @return [String]
-      def to_s
+      def encode
         payload = {
           data: data,
           iat:  Time.now.to_i,
@@ -179,23 +136,15 @@ module Heimdallr
           aud:  audience,
           nbf:  not_before,
           jti:  jwt_id
-        }.merge!(additional_claims)
+        }.merge!(@additional_claims)
         payload.delete_if { |_, value| value.nil? }
 
+        raise StandardError, 'You must set the application object before encoding.' unless @application.is_a?(Heimdallr::Application)
         algorithm = Heimdallr.jwt_algorithm.upcase
-        if %w[RS256 RS384 RS512].include?(algorithm)
-          rsa_private = OpenSSL::PKey::RSA.new File.read(Heimdallr.private_key_path)
-          issued_token = JWT.encode(payload, rsa_private, algorithm)
-        elsif %w[ES256 ES384 ES512].include?(algorithm)
-          ecdsa_key = OpenSSL::PKey::EC.new File.read(Heimdallr.private_key_path)
-          issued_token = JWT.encode(payload, ecdsa_key, algorithm)
-        elsif %w[HS256 HS384 HS512].include?(algorithm)
-          issued_token = JWT.encode(payload, Heimdallr.secret_key, algorithm)
-        else
-          raise ArgumentError, "Unable to issue token, `#{algorithm}` is invalid."
-        end
+        secret    = @application.secret_or_certificate(algorithm)
 
-        issued_token
+        # Make it so number one!
+        JWT.encode(payload, secret, algorithm, CLAIM_APP_ID => application.id)
       end
     end
   end

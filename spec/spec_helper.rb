@@ -4,9 +4,10 @@ ENV['RAILS_ENV'] ||= 'test'
 
 require File.expand_path('../dummy/config/environment', __FILE__)
 
+require 'faker'
 require 'rspec/rails'
-require 'database_cleaner'
 require 'awesome_print'
+require 'database_cleaner'
 require 'shoulda-matchers'
 
 ActiveRecord::Migration.maintain_test_schema!

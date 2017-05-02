@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = `git ls-files -- spec/*`.split("\n")
   spec.require_paths = ['lib']
 
+  spec.add_dependency 'attr_encrypted', '~> 3.0.0'
   spec.add_dependency 'railties', '>= 5.1.0'
   spec.add_dependency 'graphql', '>= 1.5.10'
   spec.add_dependency 'jwt', '~> 1.5.6'

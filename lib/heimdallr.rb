@@ -18,7 +18,7 @@ module Heimdallr
     self.jwt_algorithm        = 'HS256'
     self.issuer               = 'TODO: Token Issuer'
     self.expiration_time      = 2.hours
-    self.expiration_leeway    = 20.seconds
+    self.expiration_leeway    = 30.seconds
     self.secret_key           = Digest::SHA256.hexdigest(SecureRandom.uuid).to_s
     self.private_key_path     = nil
     self.default_scopes       = 'users:view'
