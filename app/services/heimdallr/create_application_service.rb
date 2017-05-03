@@ -7,11 +7,9 @@ module Heimdallr
     # @param [String, Array] scopes The scopes that this application can issue tokens for.
     # @param [String] secret The super secret value.
     # @param [String] ip The ip address this application is restricted to.
-    # @param [Boolean] rsa Whether or not RSA encryption should be used.
-    def initialize(name:, scopes:, secret: Application.generate_secret, ip: nil, rsa: false)
+    def initialize(name:, scopes:, secret: Application.generate_secret, ip: nil)
       @secret = secret
       @name   = name
-      @rsa    = rsa
       @ip     = ip
 
       @scopes = case scopes
@@ -25,7 +23,7 @@ module Heimdallr
 
     # @return [Application]
     def call
-      certificate = (@rsa ? OpenSSL::PKey::RSA.generate(2048).to_s : nil)
+      certificate = OpenSSL::PKey::RSA.generate(2048).to_s if %w[RS256 RS384 RS512].include?(Heimdallr.jwt_algorithm)
       Application.create!(name: @name, scopes: @scopes.all, secret: @secret, ip: @ip, certificate: certificate)
     end
   end
