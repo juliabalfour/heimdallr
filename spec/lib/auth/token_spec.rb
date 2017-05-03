@@ -1,8 +1,9 @@
 module Heimdallr
   module Auth
     describe Token do
-      let(:app) { FactoryGirl.create(:application) }
+      let(:app) { FactoryGirl.create(:application, :rsa) }
       subject do
+        Heimdallr.jwt_algorithm = 'RS256'
         token = Token.new
         token.application = app
         token
@@ -75,7 +76,7 @@ module Heimdallr
       describe '#not_before' do
         context 'when the NBF claim is in the future' do
           before do
-            subject.not_before = Faker::Time.between(20.minutes.from_now, 2.days.from_now).to_i
+            subject.not_before = 1.hour.from_now.to_i
           end
 
           it 'raises an exception when decoding' do
@@ -85,11 +86,61 @@ module Heimdallr
 
         context 'when the NBF claim is in the past' do
           before do
-            subject.not_before = Faker::Time.between(2.hours.ago, 10.minutes.ago).to_i
+            subject.not_before = 1.hour.ago.to_i
           end
 
           it 'does not raise an exception when decoding' do
             expect { Token.from_string(subject.encode) }.not_to raise_error
+          end
+        end
+      end
+
+      describe '#jwt_id' do
+        context 'when a jwt id is set' do
+          before do
+            @jwt_id = SecureRandom.uuid
+            subject.jwt_id = @jwt_id
+          end
+
+          it 'has a jwt id claim after encoding & decoding' do
+            decoded = Token.from_string(subject.encode)
+            expect(decoded.jwt_id).to eq(@jwt_id)
+          end
+        end
+
+        context 'when a jwt id is not set' do
+          before do
+            subject.jwt_id = nil
+          end
+
+          it 'does not have a jwt id claim after encoding & decoding' do
+            decoded = Token.from_string(subject.encode)
+            expect(decoded.jwt_id).to be_nil
+          end
+        end
+      end
+
+      describe '#issuer' do
+        context 'when a issuer is set' do
+          before do
+            @issuer = "#{Faker::Superhero.prefix} #{Faker::Superhero.name} #{Faker::Superhero.suffix}"
+            subject.issuer = @issuer
+          end
+
+          it 'has a issuer claim after encoding & decoding' do
+            decoded = Token.from_string(subject.encode)
+            expect(decoded.issuer).to eq(@issuer)
+          end
+        end
+
+        context 'when a issuer is not set' do
+          before do
+            subject.issuer = nil
+          end
+
+          it 'does not have a issuer claim after encoding & decoding' do
+            decoded = Token.from_string(subject.encode)
+            expect(decoded.issuer).to be_nil
           end
         end
       end

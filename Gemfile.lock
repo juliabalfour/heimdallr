@@ -138,6 +138,8 @@ GEM
       rspec-mocks (~> 3.5.0)
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
+    shoulda-callback-matchers (1.1.4)
+      activesupport (>= 3)
     shoulda-matchers (3.1.1)
       activesupport (>= 4.0.0)
     simplecov (0.14.1)
@@ -179,6 +181,7 @@ DEPENDENCIES
   rails (~> 5.1.0)
   rake (>= 11.3.0)
   rspec-rails
+  shoulda-callback-matchers
   shoulda-matchers
 
 BUNDLED WITH

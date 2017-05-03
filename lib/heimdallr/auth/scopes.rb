@@ -21,6 +21,8 @@ module Heimdallr
         @scopes = []
       end
 
+      delegate :each, :empty?, to: :@scopes
+
       def exists?(scope)
         @scopes.include?(scope.to_s)
       end
@@ -36,10 +38,6 @@ module Heimdallr
 
       def to_s
         @scopes.join(' ')
-      end
-
-      def each(&block)
-        @scopes.each(&block)
       end
 
       def has_scopes?(scopes)
@@ -60,6 +58,11 @@ module Heimdallr
 
       def <=>(other)
         map(&:to_s).sort <=> other.map(&:to_s).sort
+      end
+
+      def &(other)
+        other_array = other.present? ? other.all : []
+        self.class.from_array(all & other_array)
       end
     end
   end

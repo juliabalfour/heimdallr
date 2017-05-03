@@ -47,7 +47,6 @@ module Heimdallr
 
         begin
           options = {
-            verify_iss: true,
             verify_iat: true,
             algorithm: algorithm,
             exp_leeway: Heimdallr.expiration_leeway,
@@ -71,6 +70,7 @@ module Heimdallr
           token.subject  = payload.fetch(CLAIM_SUBJECT, nil)
           token.jwt_id   = payload.fetch(CLAIM_JWT_ID, nil)
           token.issuer   = payload.fetch(CLAIM_ISSUER, nil)
+          token.scopes   = payload.fetch('scopes')
           token.data     = payload.fetch('data')
           return token.freeze
 
@@ -98,6 +98,8 @@ module Heimdallr
       end
 
       # This is my constructor, there are many others like it, but this one is mine.
+      #
+      # @param [Hash] data
       def initialize(data = {})
         @additional_claims = {}
         @data = data
@@ -109,6 +111,26 @@ module Heimdallr
       def application=(app)
         raise ArgumentError, "Expected argument to be `Heimdallr::Application`; received #{app.class}" unless app.is_a?(Heimdallr::Application)
         @application = app
+        self
+      end
+
+      def scopes
+        @scopes ||= Scopes.new
+      end
+
+      def scopes=(value)
+        @scopes = case value
+                    when String then Scopes.from_string(value)
+                    when Array  then Scopes.from_array(value)
+                    when Scopes then value
+                    else
+                      raise ArgumentError, 'Must provide a string or array'
+                  end
+        self
+      end
+
+      def add_scope(value)
+        scopes.add(value)
         self
       end
 
@@ -127,11 +149,14 @@ module Heimdallr
       #
       # @return [String]
       def encode
+        raise StandardError, 'You must set the application object before encoding.' unless @application.is_a?(Heimdallr::Application)
+
         payload = {
+          scopes: scopes.all,
           data: data,
           iat:  Time.now.to_i,
           exp:  expiration_time || Heimdallr.expiration_time.from_now.to_i,
-          iss:  issuer || Heimdallr.issuer,
+          iss:  issuer,
           sub:  subject,
           aud:  audience,
           nbf:  not_before,
@@ -139,7 +164,6 @@ module Heimdallr
         }.merge!(@additional_claims)
         payload.delete_if { |_, value| value.nil? }
 
-        raise StandardError, 'You must set the application object before encoding.' unless @application.is_a?(Heimdallr::Application)
         algorithm = Heimdallr.jwt_algorithm.upcase
         secret    = @application.secret_or_certificate(algorithm)
 

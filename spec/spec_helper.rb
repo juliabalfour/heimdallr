@@ -9,6 +9,7 @@ require 'rspec/rails'
 require 'awesome_print'
 require 'database_cleaner'
 require 'shoulda-matchers'
+require 'shoulda-callback-matchers'
 
 ActiveRecord::Migration.maintain_test_schema!
 

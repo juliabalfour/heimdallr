@@ -7,24 +7,23 @@ module Heimdallr
     attribute :secret
     attribute :certificate
 
-    #
-    # @return [Auth::Scopes]
-    def scopes
-      Auth::Scopes.from_string(self[:scopes])
+    validates :name, :scopes, :secret, presence: true
+
+    # Generates a secret value using SHA-256.
+    def self.generate_secret
+      Digest::SHA256.hexdigest(SecureRandom.uuid).to_s
     end
 
-    #
-    # @return [String]
-    def scopes_string
-      self[:scopes]
+    # Generates a secret value using SHA-256 and updates this record.
+    def generate_secret!
+      self.secret = generate_secret
     end
 
-    # Checks whether or not this application has specific scopes.
-    #
-    # @param [Array] required_scopes The scopes to check for.
-    # @return [Boolean]
-    def includes_scope?(*required_scopes)
-      required_scopes.blank? || required_scopes.any? { |scope| scopes.exists?(scope.to_s) }
+    def scopes=(value)
+      value = value.split if value.is_a?(String)
+      value = value.uniq  if value.is_a?(Array)
+      value = value.all   if value.is_a?(Auth::Scopes)
+      super(value)
     end
 
     # Getter for returning the secret or a OpenSSL certificate (depending on the algorithm provided)
@@ -35,12 +34,10 @@ module Heimdallr
       if %w[HS256 HS384 HS512].include?(algorithm)
         secret
       elsif %w[RS256 RS384 RS512].include?(algorithm)
-        OpenSSL::PKey::RSA.new(certificate).public_key
+        OpenSSL::PKey::RSA.new(certificate)
       elsif %w[ES256 ES384 ES512].include?(algorithm)
-        ecdsa_key     = OpenSSL::PKey::EC.new(certificate)
-        ecdsa_public  = OpenSSL::PKey::EC.new(ecdsa_key)
-        ecdsa_public.private_key = nil
-        ecdsa_public
+        # TODO: ECDSA encryption does not work at this time
+        raise ArgumentError, 'ECDSA encryption does not work at this time'
       end
     end
   end

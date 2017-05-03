@@ -64,6 +64,14 @@ Metrics/ClassLength:
   Enabled: false
 
 Metrics/LineLength:
+  Description: 'Limit lines to 200 characters.'
+  Max: 200
+  Enabled: true
+
+Metrics/ModuleLength:
+  Max: 1000
+
+Metrics/CyclomaticComplexity:
   Enabled: false
 
 Metrics/AbcSize:

@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rails', '~> 5.1.0'
   spec.add_development_dependency 'factory_girl_rails'
   spec.add_development_dependency 'factory_girl', '~> 4.7.0'
+  spec.add_development_dependency 'shoulda-callback-matchers'
   spec.add_development_dependency 'generator_spec', '~> 0.9.3'
   spec.add_development_dependency 'database_cleaner', '~> 1.5.3'
 end
