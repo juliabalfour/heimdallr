@@ -1,4 +1,5 @@
 require 'attr_encrypted'
+require 'active_support/cache'
 
 module Heimdallr
   class Engine < ::Rails::Engine

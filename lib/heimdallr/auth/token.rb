@@ -70,7 +70,6 @@ module Heimdallr
           token.subject  = payload.fetch(CLAIM_SUBJECT, nil)
           token.jwt_id   = payload.fetch(CLAIM_JWT_ID, nil)
           token.issuer   = payload.fetch(CLAIM_ISSUER, nil)
-          token.scopes   = payload.fetch('scopes')
           token.data     = payload.fetch('data')
           return token.freeze
 
@@ -114,26 +113,6 @@ module Heimdallr
         self
       end
 
-      def scopes
-        @scopes ||= Scopes.new
-      end
-
-      def scopes=(value)
-        @scopes = case value
-                    when String then Scopes.from_string(value)
-                    when Array  then Scopes.from_array(value)
-                    when Scopes then value
-                    else
-                      raise ArgumentError, 'Must provide a string or array'
-                  end
-        self
-      end
-
-      def add_scope(value)
-        scopes.add(value)
-        self
-      end
-
       # Adds an additional claim to this token.
       #
       # @param [String, Symbol] claim The name.
@@ -152,7 +131,6 @@ module Heimdallr
         raise StandardError, 'You must set the application object before encoding.' unless @application.is_a?(Heimdallr::Application)
 
         payload = {
-          scopes: scopes.all,
           data: data,
           iat:  Time.now.to_i,
           exp:  expiration_time || Heimdallr.expiration_time.from_now.to_i,

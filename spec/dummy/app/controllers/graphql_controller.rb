@@ -1,4 +1,5 @@
 class GraphqlController < ApplicationController
+  before_action :heimdallr_authorize
 
   def execute
     query_string = params[:query]

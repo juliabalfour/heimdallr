@@ -9,6 +9,8 @@ module Heimdallr
 
     validates :name, :scopes, :secret, presence: true
 
+    has_many :tokens
+
     # Generates a secret value using SHA-256.
     def self.generate_secret
       Digest::SHA256.hexdigest(SecureRandom.uuid).to_s
@@ -26,11 +28,10 @@ module Heimdallr
       super(value)
     end
 
-    # Getter for returning the secret or a OpenSSL certificate (depending on the algorithm provided)
+    # Getter for returning the secret or a OpenSSL certificate.
     #
-    # @param [String] algorithm
     # @return [String, OpenSSL::PKey]
-    def secret_or_certificate(algorithm)
+    def secret_or_certificate
       if %w[HS256 HS384 HS512].include?(algorithm)
         secret
       elsif %w[RS256 RS384 RS512].include?(algorithm)

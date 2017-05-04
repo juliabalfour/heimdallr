@@ -16,6 +16,9 @@ Gem::Specification.new do |spec|
   spec.test_files    = `git ls-files -- spec/*`.split("\n")
   spec.require_paths = ['lib']
 
+  spec.cert_chain  = ['certs/heimdallr.pem']
+  spec.signing_key = File.expand_path('~/.ssh/gem-private_key.pem') if $0 =~ /gem\z/
+
   spec.add_dependency 'attr_encrypted', '~> 3.0.0'
   spec.add_dependency 'railties', '>= 5.1.0'
   spec.add_dependency 'graphql', '>= 1.5.10'
