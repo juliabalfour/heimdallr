@@ -9,8 +9,8 @@ module Heimdallr
     end
 
     context 'with a token that is not expired' do
-      let(:encoded) { CreateTokenService.new(application: application, scopes: %w[users:create universe:implode], expires_at: 30.minutes.from_now).call }
-      subject { DecodeTokenService.new(encoded).call }
+      let(:token) { CreateTokenService.new(application: application, scopes: %w[users:create universe:implode], expires_at: 30.minutes.from_now).call }
+      subject { DecodeTokenService.new(token).call }
 
       it 'decodes a JWT string' do
         expect(subject).to be_a(Token)
@@ -18,6 +18,17 @@ module Heimdallr
 
       it 'creates an immutable token (frozen)' do
         expect(subject.frozen?).to be_truthy
+      end
+    end
+
+    context 'with a token that does not exist' do
+      subject { CreateTokenService.new(application: application, scopes: %w[users:create universe:implode], expires_at: 30.minutes.from_now).call(encode: false) }
+
+      it 'raises an exception when decoding' do
+        encoded = subject.encode
+        subject.delete
+
+        expect { DecodeTokenService.new(encoded).call }.to raise_error(TokenError)
       end
     end
 

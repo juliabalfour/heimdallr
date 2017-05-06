@@ -1,5 +1,3 @@
-require 'jwt'
-
 module Heimdallr
   class CreateTokenService
 
@@ -12,8 +10,7 @@ module Heimdallr
     # @param [String] subject Optional token subject.
     # @param [String] audience
     # @param [Hash] data Optional data to attach to this token.
-    # @param [Hash] additional_claims Additional claims to include with the token.
-    def initialize(application:, scopes:, expires_at:, not_before: nil, subject: nil, audience: nil, data: {}, additional_claims: {})
+    def initialize(application:, scopes:, expires_at:, not_before: nil, subject: nil, audience: nil, data: {})
       @application = (application.is_a?(String) ? Application.find(application) : application)
       @scopes = case scopes
                   when String then Auth::Scopes.from_string(scopes)
@@ -23,16 +20,16 @@ module Heimdallr
                     raise ArgumentError, 'Must provide scopes argument as either a string or an array.'
                 end
 
-      @additional_claims = additional_claims
-      @expires_at = expires_at
-      @not_before = not_before
+      @expires_at = expires_at&.utc
+      @not_before = not_before&.utc
       @audience   = audience
       @subject    = subject
       @data       = data
     end
 
-    # @return[String]
-    def call
+    # @param [Boolean] encode Whether or not the returned token should be encoded.
+    # @return [String, Token] Returned a JWT string when the encode argument is true, Token object otherwise.
+    def call(encode: true)
       app_scopes = Auth::Scopes.from_array(@application.scopes)
       invalid_scopes = app_scopes ^ @scopes
       raise StandardError, "This application is unable to issue tokens with the following scope(s): #{invalid_scopes.join(', ')}" unless invalid_scopes.empty?
@@ -42,23 +39,13 @@ module Heimdallr
         expires_at: @expires_at,
         not_before: @not_before,
         scopes: @scopes.all,
+        audience: @audience,
+        subject: @subject,
         data: @data
       )
 
-      payload = {
-        iat: token.created_at.to_i,
-        exp: token.expires_at.to_i,
-        nbf: @not_before.to_i,
-        iss: @application.id,
-        aud: @audience,
-        jti: token.id,
-        sub: @subject
-      }.merge!(@additional_claims)
-      payload.delete_if { |_, value| value.nil? }
-
-      algorithm = @application.algorithm
-      secret    = @application.secret_or_certificate
-      JWT.encode(payload, secret, algorithm)
+      # Encode the token if requested, otherwise return the object
+      encode ? token.encode : token
     end
   end
 end

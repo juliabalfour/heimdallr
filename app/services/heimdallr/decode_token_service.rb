@@ -19,15 +19,17 @@ module Heimdallr
     # @param [String] jwt The JWT string to decode.
     # @param [Integer] leeway The leeway value to use for expiration & not-before claim verification.
     def initialize(jwt, leeway: 30.seconds)
-      raise TokenError.new(title: 'Invalid Token', detail: 'Empty JWT string provided.') unless jwt
       @leeway = leeway
       @jwt    = jwt
     end
 
     # Attempts to decode the JWT string, will raise exceptions with errors.
     #
-    # @return [Token]
-    def call
+    # @param [Boolean] frozen Whether or not the token returned should be immutable.
+    # @return [NilClass, Token] Returns nil if no JWT was provided, otherwise returns a Token object.
+    def call(frozen: true)
+      return nil if @jwt.blank?
+
       decoder = JWT::Decode.new(@jwt, nil, true, {})
       header, payload, signature, signing_input = decoder.decode_segments
 
@@ -39,7 +41,8 @@ module Heimdallr
         Token.by_ids!(id: jwt_id, application: issuer)
       end
 
-      # TODO: Add revoke logic...
+      # Check if the token was revoked in the database
+      raise TokenError.new(title: 'Invalid Token', detail: 'This token has been revoked. Please acquire a new token and try your request again.') if db_token.revoked?
 
       # Grab the algorithm & secret values to use for verification
       algorithm = db_token.application_algorithm
@@ -55,7 +58,10 @@ module Heimdallr
 
       db_token.audience = payload.fetch('aud', nil)
       db_token.subject  = payload.fetch('sub', nil)
-      db_token.freeze
+      frozen ? db_token.freeze : db_token
+
+    rescue KeyError, ActiveRecord::RecordNotFound
+      raise TokenError.new(title: 'Invalid Token', detail: 'The provided JWT is invalid. Please acquire a new token and try your request again.')
     end
 
     private
@@ -72,7 +78,7 @@ module Heimdallr
       end
 
       # Check if the token has expired
-      if claim.to_i <= (Time.now.to_i - @leeway)
+      if claim.to_i <= (Time.now.utc.to_i - @leeway)
         raise TokenError.new(
           title: 'Expired Token',
           detail: 'The provided JWT is expired. Please acquire a new token and try your request again.',
@@ -95,7 +101,7 @@ module Heimdallr
       end
 
       # Check if the token can be used yet
-      if claim.to_i > (Time.now.to_i - @leeway)
+      if claim.to_i > (Time.now.utc.to_i - @leeway)
         raise TokenError.new(
           title: 'Invalid NBF Claim',
           detail: 'The provided JWT is not valid yet and cannot be used.',

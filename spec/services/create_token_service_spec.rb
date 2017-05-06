@@ -17,6 +17,11 @@ module Heimdallr
       expect(token).to be_a(String)
     end
 
+    it 'creates a new token that can be encoded into a string' do
+      token = CreateTokenService.new(application: application, scopes: %w[users:update universe:implode], expires_at: 30.minutes.from_now).call(encode: false)
+      expect(token.encode).to be_a(String)
+    end
+
     it 'raises an exception when an unauthorized scope is requested' do
       expect { CreateTokenService.new(application: application, scopes: 'universe:create', expires_at: 30.minutes.from_now).call }.to raise_error(StandardError)
     end
