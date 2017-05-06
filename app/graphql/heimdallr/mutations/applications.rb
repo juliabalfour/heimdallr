@@ -12,7 +12,7 @@ module Heimdallr
         return_field :application, Heimdallr::Types::ApplicationType
 
         resolve ->(obj, args, ctx) {
-          application = Heimdallr::CreateApplicationService.new(
+          application = Heimdallr::Services::CreateApplication.new(
             name: args[:name],
             scopes: args[:scopes],
             algorithm: args[:algorithm]

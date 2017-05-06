@@ -1,8 +1,8 @@
 module Heimdallr
   class Application < ActiveRecord::Base
     attr_encrypted_options.merge!(encode: false, encode_iv: false, encode_salt: false)
-    attr_encrypted :secret,      key: Heimdallr.secret_key
-    attr_encrypted :certificate, key: Heimdallr.secret_key
+    attr_encrypted :secret,      key: Heimdallr.configuration.secret_key
+    attr_encrypted :certificate, key: Heimdallr.configuration.secret_key
 
     attribute :secret
     attribute :certificate

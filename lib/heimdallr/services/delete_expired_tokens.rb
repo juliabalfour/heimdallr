@@ -1,5 +1,5 @@
 module Heimdallr
-  class ExpiredTokenService
+  class DeleteExpiredTokens
     def initialize(older_than: 10.minutes.ago)
       @older_than = older_than
     end

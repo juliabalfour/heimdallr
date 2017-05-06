@@ -1,16 +1,18 @@
 module Heimdallr
-  class CreateApplicationService
+  class CreateApplication
 
     # Constructor
     #
     # @param [String] name The name.
     # @param [String, Array] scopes The scopes that this application can issue tokens for.
+    # @param [String] secret It's a secret to everybody.
     # @param [String] algorithm The algorithm to use.
     # @param [String] ip The ip address this application is restricted to.
-    def initialize(name:, scopes:, algorithm: Heimdallr.jwt_algorithm, ip: nil)
+    def initialize(name:, scopes:, secret: Application.generate_secret, algorithm: Heimdallr.configuration.default_algorithm, ip: nil)
       @algorithm = algorithm
-      @name = name
-      @ip   = ip
+      @secret = secret
+      @name   = name
+      @ip     = ip
 
       @scopes = case scopes
                   when String then Auth::Scopes.from_string(scopes)
@@ -26,9 +28,9 @@ module Heimdallr
       data = {
         ip: @ip,
         name: @name,
+        secret: @secret,
         scopes: @scopes.all,
-        algorithm: @algorithm,
-        secret: Application.generate_secret
+        algorithm: @algorithm
       }
       data[:certificate] = OpenSSL::PKey::RSA.generate(2048).to_s if %w[RS256 RS384 RS512].include?(@algorithm)
       Application.create!(data)

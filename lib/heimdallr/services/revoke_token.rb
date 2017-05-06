@@ -1,5 +1,5 @@
 module Heimdallr
-  class RevokeTokenService
+  class RevokeToken
 
     # Constructor
     #

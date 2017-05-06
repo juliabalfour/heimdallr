@@ -16,12 +16,12 @@ module Heimdallr
     private
 
     def heimdallr_render_error(error)
-      render json: { errors: [error.to_json] }, status: error.status
+      render json: { errors: [error] }, status: error.status
     end
 
     def authenticate_request
       header = request.authorization
-      return nil if invalid_auth_header?(header)
+      return create_default_token if invalid_auth_header?(header)
 
       # Extract the token from the header
       token = BEARER_TOKEN_REGEX.match(header)[1]
@@ -30,6 +30,12 @@ module Heimdallr
 
     def invalid_auth_header?(header)
       header !~ BEARER_TOKEN_REGEX
+    end
+
+    def create_default_token
+      return nil if Heimdallr.default_scopes.blank?
+
+      Token.new(scopes: Heimdallr.default_scopes).freeze
     end
   end
 end

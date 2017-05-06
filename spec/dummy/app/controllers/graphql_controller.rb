@@ -8,7 +8,9 @@ class GraphqlController < ApplicationController
     result = DummySchema.execute(
       query_string,
       variables: variables,
-      context: {}
+      context: {
+        token: heimdallr_token
+      }
     )
     render json: result
   end

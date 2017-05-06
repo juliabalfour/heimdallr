@@ -1,8 +1,8 @@
 module Heimdallr
-  describe CreateApplicationService do
+  describe CreateApplication do
     context 'using the HMAC256 algorithm' do
       subject do
-        CreateApplicationService.new(
+        CreateApplication.new(
           name: "#{Faker::Superhero.prefix} #{Faker::Superhero.name} #{Faker::Superhero.suffix}",
           scopes: 'users:create users:update tokens:delete universe:implode',
           algorithm: 'HS256'
@@ -22,7 +22,7 @@ module Heimdallr
 
     context 'using RSA256 algorithm' do
       subject do
-        CreateApplicationService.new(
+        CreateApplication.new(
           name: "#{Faker::Superhero.prefix} #{Faker::Superhero.name} #{Faker::Superhero.suffix}",
           scopes: 'users:create users:update tokens:delete universe:implode',
           algorithm: 'RS256'
@@ -42,7 +42,7 @@ module Heimdallr
 
     it 'raises an exception when the scope argument is invalid' do
       expect do
-        CreateApplicationService.new(
+        CreateApplication.new(
           name: "#{Faker::Superhero.prefix} #{Faker::Superhero.name} #{Faker::Superhero.suffix}",
           scopes: 42
         ).call

@@ -12,7 +12,7 @@ module Heimdallr
     end
   end
 
-  class DecodeTokenService
+  class DecodeToken
 
     # Constructor
     #

@@ -1,4 +1,5 @@
 require 'heimdallr/engine'
+require 'heimdallr/config'
 
 module Heimdallr
   LIBRARY_PATH = File.join(File.dirname(__FILE__), 'heimdallr')
@@ -11,27 +12,15 @@ module Heimdallr
     autoload :Scopes, File.join(AUTH_PATH, 'scopes')
   end
 
-  # Configuration/initializer attributes and default values
-  class << self
-    mattr_accessor :jwt_algorithm, :expiration_time, :expiration_leeway, :secret_key, :issuer, :cache_prefix
+  # Autoload all of the service classes
+  SERVICES_PATH = File.join(LIBRARY_PATH, 'services')
+  autoload :CreateApplication,    File.join(SERVICES_PATH, 'create_application')
+  autoload :CreateToken,          File.join(SERVICES_PATH, 'create_token')
+  autoload :DecodeToken,          File.join(SERVICES_PATH, 'decode_token')
+  autoload :DeleteExpiredTokens,  File.join(SERVICES_PATH, 'delete_expired_tokens')
+  autoload :RevokeToken,          File.join(SERVICES_PATH, 'revoke_token')
 
-    self.jwt_algorithm      = 'RS256'
-    self.expiration_time    = 2.hours
-    self.expiration_leeway  = 30.seconds
-    self.secret_key         = Digest::SHA256.hexdigest(SecureRandom.uuid).to_s
-    self.cache_prefix       = 'heimdallr'
-
-    def cache_backend=(backend)
-      @cache = backend
-    end
-
-    # @return [CacheProxy]
-    def cache
-      @cache ||= ActiveSupport::Cache::MemoryStore.new
-    end
-  end
-
-  def self.setup
-    yield self
+  def self.cache
+    @cache ||= ActiveSupport::Cache::MemoryStore.new
   end
 end

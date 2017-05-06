@@ -24,6 +24,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'graphql', '>= 1.5.10'
   spec.add_dependency 'jwt', '~> 1.5.6'
 
+  spec.add_development_dependency 'spring'
+  spec.add_development_dependency 'puma', '~> 3.7'
+  spec.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
+
   spec.add_development_dependency 'faker'
   spec.add_development_dependency 'coveralls'
   spec.add_development_dependency 'rspec-rails'
@@ -34,7 +38,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rails', '~> 5.1.0'
   spec.add_development_dependency 'factory_girl_rails'
   spec.add_development_dependency 'factory_girl', '~> 4.7.0'
-  spec.add_development_dependency 'shoulda-callback-matchers'
   spec.add_development_dependency 'generator_spec', '~> 0.9.3'
   spec.add_development_dependency 'database_cleaner', '~> 1.5.3'
 end

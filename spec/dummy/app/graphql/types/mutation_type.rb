@@ -4,5 +4,6 @@ module Types
     name 'Mutation'
 
     field :createApplication, field: Heimdallr::Mutations::Applications::CreateApplication.field
+    field :createToken, field: Heimdallr::Mutations::Tokens::CreateToken.field
   end
 end

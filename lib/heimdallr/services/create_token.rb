@@ -1,5 +1,5 @@
 module Heimdallr
-  class CreateTokenService
+  class CreateToken
 
     # Constructor
     #
@@ -33,6 +33,10 @@ module Heimdallr
       app_scopes = Auth::Scopes.from_array(@application.scopes)
       invalid_scopes = app_scopes ^ @scopes
       raise StandardError, "This application is unable to issue tokens with the following scope(s): #{invalid_scopes.join(', ')}" unless invalid_scopes.empty?
+
+      if @application.ip.present?
+
+      end
 
       token = Token.create(
         application: @application,
