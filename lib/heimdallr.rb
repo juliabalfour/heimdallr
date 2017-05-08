@@ -2,13 +2,21 @@ require 'heimdallr/engine'
 require 'heimdallr/config'
 
 module Heimdallr
+  class TokenError < StandardError
+    attr_accessor :title, :status, :links
+    def initialize(title:, detail:, status: 403, links: {})
+      @title  = title
+      @status = status
+      @links  = links
+      super(detail)
+    end
+  end
+
   LIBRARY_PATH = File.join(File.dirname(__FILE__), 'heimdallr')
   autoload :Authenticable, File.join(LIBRARY_PATH, 'authenticable')
 
   module Auth
     AUTH_PATH = File.join(LIBRARY_PATH, 'auth')
-
-    autoload :Token,  File.join(AUTH_PATH, 'token')
     autoload :Scopes, File.join(AUTH_PATH, 'scopes')
   end
 

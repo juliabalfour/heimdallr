@@ -7,19 +7,12 @@ module Heimdallr
     attribute :secret
     attribute :certificate
 
-    validates :name, :scopes, :secret, presence: true
+    before_validation :generate_key, on: :create
+    before_validation :generate_secret_or_certificate, on: :create
+
+    validates :name, :scopes, :key, :secret, presence: true
 
     has_many :tokens
-
-    # Generates a secret value using SHA-256.
-    def self.generate_secret
-      Digest::SHA256.hexdigest(SecureRandom.uuid).to_s
-    end
-
-    # Generates a secret value using SHA-256 and updates this record.
-    def generate_secret!
-      self.secret = generate_secret
-    end
 
     def scopes=(value)
       value = value.split if value.is_a?(String)
@@ -40,6 +33,26 @@ module Heimdallr
         # TODO: ECDSA encryption does not work at this time
         raise ArgumentError, 'ECDSA encryption does not work at this time'
       end
+    end
+
+    private
+
+    def generate_key
+      return if key.present?
+      self.key = absurdly_random_string
+    end
+
+    def generate_secret_or_certificate
+      self.certificate = OpenSSL::PKey::RSA.generate(2048).to_s if %w[RS256 RS384 RS512].include?(algorithm)
+      self.secret = absurdly_random_string
+    end
+
+    def absurdly_random_string
+      Digest::SHA256.hexdigest([
+        SecureRandom.uuid,
+        SecureRandom.uuid,
+        rand(9000)
+      ].join).to_s
     end
   end
 end

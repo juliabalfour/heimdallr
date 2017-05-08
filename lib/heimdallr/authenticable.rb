@@ -5,7 +5,7 @@ module Heimdallr
 
     def heimdallr_authorize!
       heimdallr_token
-    rescue TokenError => error
+    rescue Heimdallr::TokenError => error
       heimdallr_render_error(error)
     end
 
@@ -33,9 +33,9 @@ module Heimdallr
     end
 
     def create_default_token
-      return nil if Heimdallr.default_scopes.blank?
+      return nil if Heimdallr.configuration.default_scopes.blank?
 
-      Token.new(scopes: Heimdallr.default_scopes).freeze
+      Token.new(scopes: Heimdallr.configuration.default_scopes).freeze
     end
   end
 end

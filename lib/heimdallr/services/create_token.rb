@@ -3,7 +3,7 @@ module Heimdallr
 
     # Constructor
     #
-    # @param [Application, String] application Either the application object or it's ID.
+    # @param [Application, Hash] application Either an application object or a hash containing an `:id` & `:secret` key.
     # @param [Array] scopes The scopes that this token can access.
     # @param [DateTime] expires_at When this token expires.
     # @param [DateTime] not_before Optional datetime that the token will become active on.
@@ -11,7 +11,24 @@ module Heimdallr
     # @param [String] audience
     # @param [Hash] data Optional data to attach to this token.
     def initialize(application:, scopes:, expires_at:, not_before: nil, subject: nil, audience: nil, data: {})
-      @application = (application.is_a?(String) ? Application.find(application) : application)
+      if application.is_a?(Hash)
+        application.symbolize_keys!
+
+        raise ArgumentError, 'application input must contain `:id` & `:secret` symbol keys.' unless application.key?(:id) && application.key?(:secret)
+
+        # Try to find the application & verify the provided secret
+        @application = Application.find(application[:id])
+
+        Rails.logger.debug '*' * 100
+        Rails.logger.debug @application.secret
+        Rails.logger.debug '*' * 100
+
+        # raise ArgumentError, 'Invalid application id or secret.' if @application.secret != application[:secret]
+      else
+        @application = application
+      end
+
+      # Parse the scopes to remove duplicates & so we can verify that the application can issue them
       @scopes = case scopes
                   when String then Auth::Scopes.from_string(scopes)
                   when Array  then Auth::Scopes.from_array(scopes)
@@ -32,8 +49,9 @@ module Heimdallr
     def call(encode: true)
       app_scopes = Auth::Scopes.from_array(@application.scopes)
       invalid_scopes = app_scopes ^ @scopes
-      raise StandardError, "This application is unable to issue tokens with the following scope(s): #{invalid_scopes.join(', ')}" unless invalid_scopes.empty?
+      raise TokenError.new(title: 'Unable to issue token', detail: "This application is unable to issue tokens with the following scope(s): #{invalid_scopes&.join(', ')}") unless invalid_scopes.empty?
 
+      #ip_address = request.remote_ip
       if @application.ip.present?
 
       end
@@ -45,6 +63,7 @@ module Heimdallr
         scopes: @scopes.all,
         audience: @audience,
         subject: @subject,
+        #ip: ip_address,
         data: @data
       )
 

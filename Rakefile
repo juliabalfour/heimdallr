@@ -19,4 +19,24 @@ load 'rails/tasks/engine.rake'
 
 load 'rails/tasks/statistics.rake'
 
+namespace :heimdallr do
+  desc 'Install Heimdallr into dummy app'
+  task :install do
+    cd 'spec/dummy'
+    system 'bundle exec rails g heimdallr:install --force'
+  end
+
+  desc 'Install Heimdallr GraphQL types into dummy app'
+  task :types do
+    cd 'spec/dummy'
+    system 'bundle exec rails g heimdallr:types --force'
+  end
+
+  desc 'Install Heimdallr GraphQL mutations into dummy app'
+  task :mutations do
+    cd 'spec/dummy'
+    system 'bundle exec rails g heimdallr:mutations --force'
+  end
+end
+
 Bundler::GemHelper.install_tasks

@@ -5,7 +5,7 @@ DummySchema = GraphQL::Schema.define do
   mutation(Types::MutationType)
 
   rescue_from(ActiveRecord::RecordInvalid) do |error|
-    'Some data could not be saved'
+    error.message
   end
 
   rescue_from(ActiveRecord::RecordNotFound) do |error|
@@ -13,7 +13,7 @@ DummySchema = GraphQL::Schema.define do
   end
 
   rescue_from(ActiveRecord::RecordNotUnique) do |error|
-    'Some data could not be saved'
+    error.message
   end
 
   rescue_from(ActiveRecord::Rollback) do |error|
@@ -21,7 +21,14 @@ DummySchema = GraphQL::Schema.define do
   end
 
   rescue_from(StandardError) do |error|
-    error.message
+    error.inspect
+  end
+
+  rescue_from(ArgumentError) do |error|
+    {
+      message: error.message,
+      backtrace: error.backtrace
+    }.to_json
   end
 
   resolve_type ->(obj, _) do

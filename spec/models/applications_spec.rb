@@ -14,23 +14,12 @@ module Heimdallr
       subject { FactoryGirl.build(:application) }
       it { expect(subject).to validate_presence_of(:name) }
       it { expect(subject).to validate_presence_of(:scopes) }
-      it { expect(subject).to validate_presence_of(:secret) }
     end
 
     describe '#scopes=' do
       it 'converts a string into an array' do
         app = FactoryGirl.build(:application, scopes: 'users:all universe:create universe:delete')
         expect(app.scopes).to be_a(Array)
-      end
-    end
-
-    describe '.generate_secret' do
-      subject { Application.generate_secret }
-
-      it { expect(subject).to be_a(String) }
-
-      it 'is exactly 64 characters long' do
-        expect(subject.length).to eq(64)
       end
     end
   end

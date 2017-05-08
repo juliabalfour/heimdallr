@@ -1,8 +1,17 @@
 Heimdallr.configure do |config|
-  config.default_algorithm = 'RS256'
+
+  # The default JWT algorithm to use
+  config.default_algorithm = 'HS512'
 
   # Token validation period (Default: 30 minutes)
   config.expiration_time = -> { 30.minutes.from_now.utc }
 
-  config.secret_key = 'b0d7a77ce282d506598b5d0cf54b0b36f49389eb9fed174a2d285aad032f30bf'
+  # The JWT expiration leeway
+  config.expiration_leeway = 30.seconds
+
+  # The master encryption key
+  config.secret_key = 'b72f2be8be4f806e2c9f61171f8a4fedba747341c3aca5f2ef7795af702f4ade'
+
+  # The default scopes to include for requests without a token (Optional)
+  config.default_scopes = 'view'
 end

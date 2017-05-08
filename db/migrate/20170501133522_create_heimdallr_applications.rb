@@ -6,6 +6,7 @@ class CreateHeimdallrApplications < ActiveRecord::Migration[5.1]
 
     create_table :heimdallr_applications, id: :uuid do |t|
       t.string :name,   null: false
+      t.string :key,    null: false, index: :unique
       t.string :scopes, null: false, default: '{}', array: true
 
       t.column :algorithm, :heimdallr_algorithms, null: false, default: 'RS256'

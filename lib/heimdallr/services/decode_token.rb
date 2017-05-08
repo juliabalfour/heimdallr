@@ -2,16 +2,6 @@ require 'jwt'
 require 'openssl'
 
 module Heimdallr
-  class TokenError < StandardError
-    attr_accessor :title, :status, :links
-    def initialize(title:, detail:, status: 403, links: {})
-      @title  = title
-      @status = status
-      @links  = links
-      super(detail)
-    end
-  end
-
   class DecodeToken
 
     # Constructor
