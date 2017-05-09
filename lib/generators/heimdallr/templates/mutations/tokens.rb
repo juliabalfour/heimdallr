@@ -4,8 +4,8 @@ module Mutations
       # noinspection RubyArgCount
       name 'ApplicationInput'
 
-      argument :id, !Types::UuidType
-      argument :secret, !types.String
+      argument :id,  !Types::UuidType
+      argument :key, !types.String
     end
 
     CreateToken = GraphQL::Relay::Mutation.define do
@@ -33,6 +33,20 @@ module Mutations
         rescue ArgumentError, Heimdallr::TokenError => error
           GraphQL::ExecutionError.new(error.message)
         end
+      end
+    end
+
+    RevokeToken = GraphQL::Relay::Mutation.define do
+      # noinspection RubyArgCount
+      name 'RevokeToken'
+
+      input_field :id, !Types::UuidType
+      input_field :applicationId, !Types::UuidType
+
+      return_field :revoked, types.Boolean
+
+      resolve ->(_, args, _) do
+        { revoked: Heimdallr::RevokeToken.new(id: args[:id], application_id: args[:applicationId]).call }
       end
     end
   end

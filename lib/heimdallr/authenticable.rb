@@ -25,7 +25,7 @@ module Heimdallr
 
       # Extract the token from the header
       token = BEARER_TOKEN_REGEX.match(header)[1]
-      DecodeTokenService.new(token).call
+      DecodeToken.new(token).call
     end
 
     def invalid_auth_header?(header)
@@ -34,7 +34,6 @@ module Heimdallr
 
     def create_default_token
       return nil if Heimdallr.configuration.default_scopes.blank?
-
       Token.new(scopes: Heimdallr.configuration.default_scopes).freeze
     end
   end

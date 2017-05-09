@@ -7,7 +7,7 @@ module Types
     field :id,        UuidType
     field :name,      types.String
     field :ip,        types.String
-    field :secret,    types.String
+    field :key,       types.String
     field :scopes,    types[types.String]
     field :algorithm, AlgorithmTypeEnum
   end

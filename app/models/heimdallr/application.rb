@@ -10,9 +10,19 @@ module Heimdallr
     before_validation :generate_key, on: :create
     before_validation :generate_secret_or_certificate, on: :create
 
+    before_save :purge_cache
+
     validates :name, :scopes, :key, :secret, presence: true
 
     has_many :tokens
+
+    def self.by_id_and_key!(id:, key:)
+      where(id: id, key: key).take!
+    end
+
+    def self.cache_key(id:, key:)
+      [key, id].join(':')
+    end
 
     def scopes=(value)
       value = value.split if value.is_a?(String)
@@ -38,21 +48,24 @@ module Heimdallr
     private
 
     def generate_key
-      return if key.present?
-      self.key = absurdly_random_string
+      self.key = excessively_random_string if key.blank?
     end
 
     def generate_secret_or_certificate
       self.certificate = OpenSSL::PKey::RSA.generate(2048).to_s if %w[RS256 RS384 RS512].include?(algorithm)
-      self.secret = absurdly_random_string
+      self.secret = excessively_random_string
     end
 
-    def absurdly_random_string
+    def excessively_random_string
       Digest::SHA256.hexdigest([
         SecureRandom.uuid,
         SecureRandom.uuid,
         rand(9000)
       ].join).to_s
+    end
+
+    def purge_cache
+      Heimdallr.cache.delete(Application.cache_key(id: id, key: key))
     end
   end
 end

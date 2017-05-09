@@ -48,7 +48,7 @@ module Heimdallr
 
       db_token.audience = payload.fetch('aud', nil)
       db_token.subject  = payload.fetch('sub', nil)
-      frozen ? db_token.freeze : db_token
+      frozen ? db_token.dup.freeze : db_token
 
     rescue KeyError, ActiveRecord::RecordNotFound
       raise TokenError.new(title: 'Invalid Token', detail: 'The provided JWT is invalid. Please acquire a new token and try your request again.')

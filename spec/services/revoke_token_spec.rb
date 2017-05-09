@@ -20,7 +20,7 @@ module Heimdallr
       subject { CreateToken.new(application: application, scopes: %w[users:create universe:implode], expires_at: 30.minutes.from_now).call(encode: false) }
 
       it 'raises an exception when decoding' do
-        subject.revoke!
+        RevokeToken.new(id: subject.id, application_id: subject.application_id).call
         expect { DecodeToken.new(subject.encode).call }.to raise_error(TokenError)
       end
     end

@@ -3,7 +3,7 @@ module Heimdallr
 
     # Constructor
     #
-    # @param [Application, Hash] application Either an application object or a hash containing an `:id` & `:secret` key.
+    # @param [Application, Hash] application Either an application object or a hash containing an `:id` & `:key` key.
     # @param [Array] scopes The scopes that this token can access.
     # @param [DateTime] expires_at When this token expires.
     # @param [DateTime] not_before Optional datetime that the token will become active on.
@@ -14,16 +14,15 @@ module Heimdallr
       if application.is_a?(Hash)
         application.symbolize_keys!
 
-        raise ArgumentError, 'application input must contain `:id` & `:secret` symbol keys.' unless application.key?(:id) && application.key?(:secret)
+        raise ArgumentError, 'application input must contain `:id` & `:key` symbol keys.' unless application.key?(:id) && application.key?(:key)
 
-        # Try to find the application & verify the provided secret
-        @application = Application.find(application[:id])
+        key = application[:key]
+        id  = application[:id]
 
-        Rails.logger.debug '*' * 100
-        Rails.logger.debug @application.secret
-        Rails.logger.debug '*' * 100
-
-        # raise ArgumentError, 'Invalid application id or secret.' if @application.secret != application[:secret]
+        # Try to find the application & verify the provided key
+        @application = Heimdallr.cache.fetch(Application.cache_key(id: id, key: key)) do
+          Application.by_id_and_key!(id: id, key: key)
+        end
       else
         @application = application
       end
@@ -51,7 +50,7 @@ module Heimdallr
       invalid_scopes = app_scopes ^ @scopes
       raise TokenError.new(title: 'Unable to issue token', detail: "This application is unable to issue tokens with the following scope(s): #{invalid_scopes&.join(', ')}") unless invalid_scopes.empty?
 
-      #ip_address = request.remote_ip
+      # ip_address = request.remote_ip
       if @application.ip.present?
 
       end
@@ -63,7 +62,7 @@ module Heimdallr
         scopes: @scopes.all,
         audience: @audience,
         subject: @subject,
-        #ip: ip_address,
+        # ip: ip_address,
         data: @data
       )
 
