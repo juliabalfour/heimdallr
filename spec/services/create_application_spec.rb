@@ -31,22 +31,17 @@ module Heimdallr
 
       it { expect(subject).to be_a(Application) }
 
-      it 'generates a secret value' do
+      it 'generates a secret' do
         expect(subject.secret).to be_a(String)
+      end
+
+      it 'generates a key' do
+        expect(subject.key).to be_a(String)
       end
 
       it 'generates a certificate' do
         expect(subject.certificate).to be_a(String)
       end
-    end
-
-    it 'raises an exception when the scope argument is invalid' do
-      expect do
-        CreateApplication.new(
-          name: "#{Faker::Superhero.prefix} #{Faker::Superhero.name} #{Faker::Superhero.suffix}",
-          scopes: 42
-        ).call
-      end.to raise_error(ArgumentError)
     end
   end
 end

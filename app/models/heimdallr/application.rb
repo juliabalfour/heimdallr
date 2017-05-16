@@ -4,18 +4,20 @@ module Heimdallr
     attr_encrypted :secret,      key: Heimdallr.configuration.secret_key
     attr_encrypted :certificate, key: Heimdallr.configuration.secret_key
 
+    has_many :tokens
+
     attribute :secret
     attribute :certificate
 
-    before_validation :generate_key, on: :create
-    before_validation :generate_secret_or_certificate, on: :create
-
-    before_save :purge_cache
+    before_validation :generate_key, :generate_secret, on: :create
+    before_save :check_scopes, :clear_cache
 
     validates :name, :scopes, :key, :secret, presence: true
 
-    has_many :tokens
-
+    # Find an application by it's ID and key.
+    #
+    # @param [String] id The application ID.
+    # @param [String] key The application key.
     def self.by_id_and_key!(id:, key:)
       where(id: id, key: key).take!
     end
@@ -24,6 +26,9 @@ module Heimdallr
       [key, id].join(':')
     end
 
+    # Set the scopes for this application.
+    #
+    # @param [String, Array, Auth::Scopes] value The scopes to set.
     def scopes=(value)
       value = value.split if value.is_a?(String)
       value = value.uniq  if value.is_a?(Array)
@@ -47,15 +52,20 @@ module Heimdallr
 
     private
 
+    # Generates a new application key if one does not already exist.
     def generate_key
       self.key = excessively_random_string if key.blank?
     end
 
-    def generate_secret_or_certificate
+    # Generates a secret value and if necessary also a RSA certificate.
+    def generate_secret
       self.certificate = OpenSSL::PKey::RSA.generate(2048).to_s if %w[RS256 RS384 RS512].include?(algorithm)
       self.secret = excessively_random_string
     end
 
+    # Bordering on pointlessly random string generator.
+    #
+    # @return [String]
     def excessively_random_string
       Digest::SHA256.hexdigest([
         SecureRandom.uuid,
@@ -64,7 +74,14 @@ module Heimdallr
       ].join).to_s
     end
 
-    def purge_cache
+    # Checks the application scopes and removes duplicates.
+    def check_scopes
+      scopes = Auth::Scopes.from_array([*self.scopes])
+      self.scopes = scopes.all
+    end
+
+    # Clears any cached values for this application.
+    def clear_cache
       Heimdallr.cache.delete(Application.cache_key(id: id, key: key))
     end
   end

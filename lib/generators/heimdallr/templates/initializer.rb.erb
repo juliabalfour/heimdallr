@@ -13,5 +13,5 @@ Heimdallr.configure do |config|
   config.secret_key = '<%= Digest::SHA256.hexdigest(SecureRandom.uuid).to_s %>'
 
   # The default scopes to include for requests without a token (Optional)
-  config.default_scopes = 'view'
+  config.default_scopes = %w[view]
 end

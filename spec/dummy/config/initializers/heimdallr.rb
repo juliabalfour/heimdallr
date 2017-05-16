@@ -13,5 +13,5 @@ Heimdallr.configure do |config|
   config.secret_key = 'b72f2be8be4f806e2c9f61171f8a4fedba747341c3aca5f2ef7795af702f4ade'
 
   # The default scopes to include for requests without a token (Optional)
-  config.default_scopes = 'view'
+  config.default_scopes = %w[view create]
 end

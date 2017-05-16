@@ -10,10 +10,8 @@ module Heimdallr
     # @param [String] subject Optional token subject.
     # @param [String] audience
     # @param [Hash] data Optional data to attach to this token.
-    def initialize(application:, scopes:, expires_at:, not_before: nil, subject: nil, audience: nil, data: {})
+    def initialize(application:, scopes:, expires_at: nil, not_before: nil, subject: nil, audience: nil, data: {})
       if application.is_a?(Hash)
-        application.symbolize_keys!
-
         raise ArgumentError, 'application input must contain `:id` & `:key` symbol keys.' unless application.key?(:id) && application.key?(:key)
 
         key = application[:key]
@@ -27,41 +25,29 @@ module Heimdallr
         @application = application
       end
 
-      # Parse the scopes to remove duplicates & so we can verify that the application can issue them
-      @scopes = case scopes
-                  when String then Auth::Scopes.from_string(scopes)
-                  when Array  then Auth::Scopes.from_array(scopes)
-                  when Auth::Scopes then scopes
-                  else
-                    raise ArgumentError, 'Must provide scopes argument as either a string or an array.'
-                end
-
       @expires_at = expires_at&.utc
       @not_before = not_before&.utc
       @audience   = audience
       @subject    = subject
+      @scopes     = scopes
       @data       = data
     end
 
     # @param [Boolean] encode Whether or not the returned token should be encoded.
     # @return [String, Token] Returned a JWT string when the encode argument is true, Token object otherwise.
     def call(encode: true)
-      app_scopes = Auth::Scopes.from_array(@application.scopes)
-      invalid_scopes = app_scopes ^ @scopes
-      raise TokenError.new(title: 'Unable to issue token', detail: "This application is unable to issue tokens with the following scope(s): #{invalid_scopes&.join(', ')}") unless invalid_scopes.empty?
-
       # ip_address = request.remote_ip
-      if @application.ip.present?
+      # if @application.ip.present?
 
-      end
+      # end
 
       token = Token.create(
         application: @application,
-        expires_at: @expires_at,
+        expires_at: @expires_at || Heimdallr.configuration.expiration_time.call,
         not_before: @not_before,
-        scopes: @scopes.all,
         audience: @audience,
         subject: @subject,
+        scopes: @scopes,
         # ip: ip_address,
         data: @data
       )

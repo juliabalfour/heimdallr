@@ -11,28 +11,14 @@ module Heimdallr
     def initialize(name:, scopes:, secret: nil, algorithm: Heimdallr.configuration.default_algorithm, ip: nil)
       @algorithm = algorithm
       @secret = secret
+      @scopes = scopes
       @name   = name
       @ip     = ip
-
-      @scopes = case scopes
-                  when String then Auth::Scopes.from_string(scopes)
-                  when Array  then Auth::Scopes.from_array(scopes)
-                  when Auth::Scopes then scopes
-                  else
-                    raise ArgumentError, 'Must provide scopes argument as either a string or an array.'
-                end
     end
 
     # @return [Application]
     def call
-      data = {
-        ip: @ip,
-        name: @name,
-        secret: @secret,
-        scopes: @scopes.all,
-        algorithm: @algorithm
-      }
-      Application.create!(data)
+      Application.create!(ip: @ip, name: @name, secret: @secret, scopes: @scopes, algorithm: @algorithm)
     end
   end
 end
