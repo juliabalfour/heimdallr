@@ -1,6 +1,6 @@
 module Mutations
   module Applications
-    CreateApplication = GraphQL::Relay::Mutation.define do
+    Create = GraphQL::Relay::Mutation.define do
       # noinspection RubyArgCount
       name 'CreateApplication'
       description 'Creates a new JWT application.'

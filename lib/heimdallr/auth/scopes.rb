@@ -1,5 +1,10 @@
 module Heimdallr
   module Auth
+
+    # Utility class for managing scopes.
+    #
+    # @deprecated This class should not be used and will be removed in a later release. You should instead use arrays.
+    #
     class Scopes
       include Enumerable
       include Comparable

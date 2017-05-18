@@ -1,11 +1,20 @@
 module GraphQL
   module Helpers
-    def graphql(query:, variables: {})
+
+    # Executes a GraphQL query.
+    #
+    # @param [String] query
+    # @param [Hash] variables
+    # @param [String] token
+    def graphql(query:, variables: {}, token: nil)
       body = {}
       body[:query] = query
       body[:variables] = variables if variables.any?
 
-      post('/graphql', JSON.generate(body))
+      headers = {}
+      headers[:authorization] = "Bearer #{token}" if token.present?
+
+      post('/graphql', JSON.generate(body), headers)
     end
   end
 end

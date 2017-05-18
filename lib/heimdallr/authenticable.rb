@@ -34,12 +34,15 @@ module Heimdallr
     # @param [TokenError] error
     def heimdallr_render_error(error: nil)
       if error.blank?
-        error = heimdallr_token.token_errors || { title: 'Unauthorized', detail: 'Missing Authorization header.' }
+        error = heimdallr_token&.token_errors || [{ status: 401, source: { pointer: '/request/headers/authorization' }, title: 'Unauthorized', detail: 'Missing Authorization header.' }]
       end
 
-      render json: { errors: [*error] }, status: 403
+      render json: { errors: [*error] }, status: 401
     end
 
+    # Attempts to authenticate the current request.
+    #
+    # @return [Token, nil]
     def authenticate_request
       header = request.authorization
       return create_default_token if invalid_auth_header?(header)
@@ -49,13 +52,16 @@ module Heimdallr
       DecodeToken.new(token).call
     end
 
+    # Checks whether the given header matches the correct regex.
+    #
+    # @return [Boolean]
     def invalid_auth_header?(header)
       header !~ BEARER_TOKEN_REGEX
     end
 
     # Creates a default token if `default_scopes` are set in the initializer.
     #
-    # @return [Token, NilClass]
+    # @return [Token, nil]
     def create_default_token
       return nil if Heimdallr.configuration.default_scopes.blank?
       Token.new(scopes: [*Heimdallr.configuration.default_scopes]).freeze

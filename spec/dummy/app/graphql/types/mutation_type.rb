@@ -3,7 +3,7 @@ module Types
     # noinspection RubyArgCount
     name 'Mutation'
 
-    field :createApplication, field: Mutations::Applications::CreateApplication.field
-    field :createToken, field: Mutations::Tokens::CreateToken.field
+    field :createApplication, field: Mutations::Applications::Create.field
+    field :createToken, field: Mutations::Tokens::Create.field
   end
 end

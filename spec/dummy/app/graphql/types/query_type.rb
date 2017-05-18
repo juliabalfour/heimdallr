@@ -3,14 +3,9 @@ module Types
     # noinspection RubyArgCount
     name 'Query'
 
-    field :fabulous, types.String do
-      resolve ->(_, _, _) { 'Supercalifragilisticexpialidocious' }
-    end
-
-    field :token, types.String do
+    field :token, TokenType do
       resolve ->(_, _, ctx) do
-        token = ctx[:token]
-        token.inspect
+        ctx[:token]
       end
     end
   end

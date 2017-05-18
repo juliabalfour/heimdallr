@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: README
+  
+    &mdash; Documentation by YARD 0.9.9
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "README";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'><h1>Heimdallr</h1>
+
+<blockquote>
+<p>Exactly!&quot; said Deep Thought. &quot;So once you do know what the question actually is, you&#39;ll know what the answer means.</p>
+
+<p>― Douglas Adams, The Hitchhiker&#39;s Guide to the Galaxy</p>
+</blockquote>
+
+<h2>Table of Contents</h2>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+<li><a href="#installing--getting-started">Installing / Getting Started</a></li>
+<li><a href="#configuration">Configuration</a>
+
+<ul>
+<li><a href="#jwt-algorithm-default_algorithm">JWT Algorithm (<code>default_algorithm</code>)</a></li>
+<li><a href="#hmac">HMAC</a></li>
+<li><a href="#rsa">RSA</a></li>
+<li><a href="#expiration-time-expiration_time">Expiration Time (<code>expiration_time</code>)</a></li>
+<li><a href="#expiration-leeway-expiration_leeway">Expiration Leeway (<code>expiration_leeway</code>)</a></li>
+<li><a href="#secret-key-secret_key">Secret Key (<code>secret_key</code>)</a></li>
+<li><a href="#default-scopes-default_scopes">Default Scopes (<code>default_scopes</code>)</a></li>
+</ul></li>
+<li><a href="#graphql-types">GraphQL Types</a>
+
+<ul>
+<li><a href="#algorithm-enum-typesalgorithmtypeenum">Algorithm Enum (<code>Types::AlgorithmTypeEnum</code>)</a></li>
+<li><a href="#grant-enum-typesgranttypeenum">Grant Enum (<code>Types::GrantTypeEnum</code>)</a></li>
+<li><a href="#application-type-typesapplicationtype">Application Type (<code>Types::ApplicationType</code>)</a></li>
+<li><a href="#token-type-typestokentype">Token Type (<code>Types::TokenType</code>)</a></li>
+<li><a href="#datetime-scalar-typesdatetimetype">DateTime Scalar (<code>Types::DateTimeType</code>)</a></li>
+<li><a href="#uuid-scalar-typesuuidtype">Uuid Scalar (<code>Types::UuidType</code>)</a></li>
+</ul></li>
+<li><a href="#graphql-mutations">GraphQL Mutations</a>
+
+<ul>
+<li><a href="#create-application-mutationsapplicationscreate">Create Application (<code>Mutations::Applications::Create</code>)</a></li>
+<li><a href="#create-token-mutationstokenscreate">Create Token (<code>Mutations::Tokens::Create</code>)</a></li>
+</ul></li>
+<li><a href="#services">Services</a>
+
+<ul>
+<li><a href="#create-application-heimdallrcreateapplication">Create Application (<code>Heimdallr::CreateApplication</code>)</a></li>
+<li><a href="#create-token-heimdallrcreatetoken">Create Token (<code>Heimdallr::CreateToken</code>)</a></li>
+<li><a href="#decode-token-heimdallrdecodetoken">Decode Token (<code>Heimdallr::DecodeToken</code>)</a></li>
+</ul></li>
+<li><a href="#development">Development</a>
+
+<ul>
+<li><a href="#testing">Testing</a></li>
+<li><a href="#update-the-readmemd-table-of-contents">Update the README.md Table of Contents</a></li>
+<li><a href="#update-the-gem-documentation">Update the gem documentation</a></li>
+</ul></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+<h2>Installing / Getting Started</h2>
+
+<p>Heimdallr is cryptographically signed. To be sure the gem you install has not been tampered with, add the Heimdallr public key (if you have not already) as a trusted certificate:</p>
+
+<pre class="code shell"><code class="shell">gem cert --add &lt;(curl -Ls https://raw.github.com/juliabalfour/heimdallr/master/certs/heimdallr.pem)
+</code></pre>
+
+<p>Put this in your Gemfile:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_gem'>gem</span> <span class='id identifier rubyid_heimdallr'>heimdallr</span>
+</code></pre>
+
+<p>Run the installation generator with:</p>
+
+<pre class="code shell"><code class="shell">rails g heimdallr:install
+</code></pre>
+
+<p>This will install the Heimdallr initializer into <code>config/initializers/heimdallr.rb</code>.</p>
+
+<h2>Configuration</h2>
+
+<p>This is the default initializer that will be generated:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='const'><span class='object_link'><a href="Heimdallr.html" title="Heimdallr (module)">Heimdallr</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configure'><span class='object_link'><a href="Heimdallr.html#configure-class_method" title="Heimdallr.configure (method)">configure</a></span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_config'>config</span><span class='op'>|</span>
+
+  <span class='comment'># The default JWT algorithm to use
+</span>  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_default_algorithm'>default_algorithm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HS512</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># Token validation period (Default: 30 minutes)
+</span>  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_expiration_time'>expiration_time</span> <span class='op'>=</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='int'>30</span><span class='period'>.</span><span class='id identifier rubyid_minutes'>minutes</span><span class='period'>.</span><span class='id identifier rubyid_from_now'>from_now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span> <span class='rbrace'>}</span>
+
+  <span class='comment'># The JWT expiration leeway
+</span>  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_expiration_leeway'>expiration_leeway</span> <span class='op'>=</span> <span class='int'>30</span><span class='period'>.</span><span class='id identifier rubyid_seconds'>seconds</span>
+
+  <span class='comment'># The master encryption key
+</span>  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_secret_key'>secret_key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RANDOMLY-GENERATED-STRING</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># The default scopes to include for requests without a token (Optional)
+</span>  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_default_scopes'>default_scopes</span> <span class='op'>=</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>view</span><span class='words_sep'>]</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<h3>JWT Algorithm (<code>default_algorithm</code>)</h3>
+
+<p>You can set the default JWT algorithm that will be used with the <code>default_algorithm</code> configuration option.</p>
+
+<h4>HMAC</h4>
+
+<p>When you use HMAC for cryptographic signing, each application will have a unique encrypted secret value generated upon creation.</p>
+
+<p>Available Algorithms:</p>
+
+<ul>
+<li>HS256 - HMAC using SHA-256 hash algorithm.</li>
+<li>HS384 - HMAC using SHA-384 hash algorithm.</li>
+<li>HS512 - HMAC using SHA-512 hash algorithm.</li>
+</ul>
+
+<p>You may retrieve the secret value from the application by doing the following:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_application'>application</span><span class='period'>.</span><span class='id identifier rubyid_secret'>secret</span>
+</code></pre>
+
+<h4>RSA</h4>
+
+<p>When you use RSA for cryptographic signing, each application will have a unique encrypted certificate generated upon creation.</p>
+
+<p>Available Algorithms:</p>
+
+<ul>
+<li>RS256 - RSA using SHA-256 hash algorithm.</li>
+<li>RS384 - RSA using SHA-384 hash algorithm.</li>
+<li>RS512 - RSA using SHA-512 hash algorithm.</li>
+</ul>
+
+<p>You may retrieve the certificate object from the application by doing the following:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_application'>application</span><span class='period'>.</span><span class='id identifier rubyid_certificate'>certificate</span>
+</code></pre>
+
+<h3>Expiration Time (<code>expiration_time</code>)</h3>
+
+<p>You can set the default JWT expiration time by setting a proc to the <code>expiration_time</code> configuration option.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_expiration_time'>expiration_time</span> <span class='op'>=</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='int'>30</span><span class='period'>.</span><span class='id identifier rubyid_minutes'>minutes</span><span class='period'>.</span><span class='id identifier rubyid_from_now'>from_now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span> <span class='rbrace'>}</span>
+</code></pre>
+
+<p><strong>Please keep in mind that all times must be in UTC!</strong></p>
+
+<h3>Expiration Leeway (<code>expiration_leeway</code>)</h3>
+
+<p>The expiration leeway configuration option is used to account for clock skew.</p>
+
+<h3>Secret Key (<code>secret_key</code>)</h3>
+
+<p>This is the master secret key used for encryption of application secrets &amp; certificates. </p>
+
+<p><strong>-= DANGER, WILL ROBINSON! =-</strong></p>
+
+<p>Although a secret key is generated when you run the installation generator, it is strictly done to speed up integration time.
+The secret key value should <strong>NEVER</strong> be stored under source control!</p>
+
+<p>Instead, use an environment variable like so:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_secret_key'>secret_key</span> <span class='op'>=</span> <span class='const'>ENV</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:heimdallr_key</span><span class='rparen'>)</span>
+</code></pre>
+
+<h3>Default Scopes (<code>default_scopes</code>)</h3>
+
+<p>If you provide an array of default scopes, requests that do not have an <code>Authorization</code> header will have a new token created automatically.</p>
+
+<p>However, if you do not provide any default scopes requests that do not have an <code>Authorization</code> header will be rejected with the following error:</p>
+
+<pre class="code json"><code class="json">{
+  &quot;errors&quot;: [
+    {
+      &quot;status&quot;: &quot;401&quot;,
+      &quot;source&quot;: {
+        &quot;pointer&quot;: &quot;/request/headers/authorization&quot;
+      },
+      &quot;title&quot;: &quot;Unauthorized&quot;,
+      &quot;detail&quot;: &quot;Missing Authorization header.&quot;
+    }
+  ]
+}
+</code></pre>
+
+<p><strong>Note:</strong> You must provide a default scope if you plan to use the built-in GraphQL mutations for issuing tokens! </p>
+
+<h2>GraphQL Types</h2>
+
+<p>Heimdallr includes a few handy GraphQL types that can be installed into your project by running the following generator:</p>
+
+<pre class="code shell"><code class="shell">rails g heimdallr:types
+</code></pre>
+
+<h3>Algorithm Enum (<code>Types::AlgorithmTypeEnum</code>)</h3>
+
+<p>This type provides an enum with the following values:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>HS256</code></td>
+<td>HMAC using SHA-256 hash algorithm.</td>
+</tr>
+<tr>
+<td><code>HS384</code></td>
+<td>HMAC using SHA-384 hash algorithm.</td>
+</tr>
+<tr>
+<td><code>HS512</code></td>
+<td>HMAC using SHA-512 hash algorithm.</td>
+</tr>
+<tr>
+<td><code>RS256</code></td>
+<td>RSA using SHA-256 hash algorithm.</td>
+</tr>
+<tr>
+<td><code>RS384</code></td>
+<td>RSA using SHA-384 hash algorithm.</td>
+</tr>
+<tr>
+<td><code>RS512</code></td>
+<td>RSA using SHA-512 hash algorithm.</td>
+</tr>
+</tbody></table>
+
+<h3>Grant Enum (<code>Types::GrantTypeEnum</code>)</h3>
+
+<p>This type provides an enum with (<em>currently</em>) a single value of <code>SECRET</code>. It is used by the a few GraphQL mutations.</p>
+
+<h3>Application Type (<code>Types::ApplicationType</code>)</h3>
+
+<p>This type is used to expose JWT applications via the API and is entirely optional (<em>However, it is used for mutations</em>). It provides the following fields:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>UuidType</code></td>
+<td>A UUID-4 value that is set automatically by the database upon creation.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>String</code></td>
+<td>Provided when creating a new application, should be a human friendly value.</td>
+</tr>
+<tr>
+<td><code>ip</code></td>
+<td><code>String</code></td>
+<td>Token issue requests must come from this IP address, or they will be refused (Optional)</td>
+</tr>
+<tr>
+<td><code>key</code></td>
+<td><code>String</code></td>
+<td>A randomly generated string that must be provided when issuing new tokens.</td>
+</tr>
+<tr>
+<td><code>scopes</code></td>
+<td><code>Array</code></td>
+<td>An array of scopes that this application is authorized to issue tokens for.</td>
+</tr>
+</tbody></table>
+
+<h3>Token Type (<code>Types::TokenType</code>)</h3>
+
+<p>This type is used to expose JWT tokens via the API, it provides the following fields:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>UuidType</code></td>
+<td>A UUID-4 value that is set automatically by the database upon creation.</td>
+</tr>
+<tr>
+<td><code>ip</code></td>
+<td><code>String</code></td>
+<td>The IP address this token was issued to.</td>
+</tr>
+<tr>
+<td><code>scopes</code></td>
+<td><code>Array</code></td>
+<td>An array of scopes that this token is granted to use.</td>
+</tr>
+<tr>
+<td><code>application</code></td>
+<td><code>ApplicationType</code></td>
+<td>The application that issued this token.</td>
+</tr>
+<tr>
+<td><code>jwt</code></td>
+<td><code>String</code></td>
+<td>The encoded JWT token string.</td>
+</tr>
+<tr>
+<td><code>createdAt</code></td>
+<td><code>DateTime</code></td>
+<td>An ISO-8601 encoded UTC date string representing when this token was issued.</td>
+</tr>
+<tr>
+<td><code>expiresAt</code></td>
+<td><code>DateTime</code></td>
+<td>An ISO-8601 encoded UTC date string representing when this token will expire.</td>
+</tr>
+<tr>
+<td><code>revokedAt</code></td>
+<td><code>DateTime</code></td>
+<td>An ISO-8601 encoded UTC date string representing when this was revoked.</td>
+</tr>
+<tr>
+<td><code>notBefore</code></td>
+<td><code>DateTime</code></td>
+<td>An ISO-8601 encoded UTC date string representing when this token becomes active.</td>
+</tr>
+</tbody></table>
+
+<h3>DateTime Scalar (<code>Types::DateTimeType</code>)</h3>
+
+<p>An ISO-8601 encoded UTC date string.</p>
+
+<h3>Uuid Scalar (<code>Types::UuidType</code>)</h3>
+
+<p>A universally unique identifier (UUID) is a 128-bit number used to identify information in computer systems.</p>
+
+<h2>GraphQL Mutations</h2>
+
+<p>Heimdallr includes a number of GraphQL mutations that can be installed into your project by running the following generator:</p>
+
+<pre class="code shell"><code class="shell">rails g heimdallr:mutations
+</code></pre>
+
+<h3>Create Application (<code>Mutations::Applications::Create</code>)</h3>
+
+<p>This mutation lets you make new JWT applications via a GraphQL request, it has the following input fields:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>String</code></td>
+<td>Yes</td>
+<td>The application name.</td>
+</tr>
+<tr>
+<td><code>scopes</code></td>
+<td><code>Array</code></td>
+<td>Yes</td>
+<td>An array of scopes that this application will be authorized to issue tokens for.</td>
+</tr>
+<tr>
+<td><code>algorithm</code></td>
+<td><code>AlgorithmEnum</code></td>
+<td>Yes</td>
+<td>The algorithm to use for cryptographic signing tokens.</td>
+</tr>
+</tbody></table>
+
+<p><strong>Example</strong></p>
+
+<pre class="code graphql"><code class="graphql">{
+  createApplication(input: {
+    name: &quot;Unicorns &amp; Rainbows&quot;,
+    scopes: [&quot;unicorn:create&quot;, &quot;unicorn:update&quot;, &quot;unicorn:hug&quot;, &quot;unicorn:ride&quot;, &quot;rainbow:create&quot;, &quot;rainbow:obliterate&quot;],
+    algorithm: RS256
+  }) {
+    application {
+      id
+      name
+      key
+    }
+  }
+}
+</code></pre>
+
+<h3>Create Token (<code>Mutations::Tokens::Create</code>)</h3>
+
+<p>This mutation lets you issue JWT tokens via a GraphQL request, it has the following input fields:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>application</code></td>
+<td><code>ApplicationInput</code></td>
+<td>Yes</td>
+<td>An input type that has two fields, <code>id</code> (the application UUID) and <code>key</code> (the application key)</td>
+</tr>
+<tr>
+<td><code>audience</code></td>
+<td><code>String</code></td>
+<td>No</td>
+<td>Optional audience string value.</td>
+</tr>
+<tr>
+<td><code>subject</code></td>
+<td><code>String</code></td>
+<td>No</td>
+<td>Optional subject string value.</td>
+</tr>
+<tr>
+<td><code>scopes</code></td>
+<td><code>Array</code></td>
+<td>Yes</td>
+<td>An array of scopes that this token should be issued. (<em>The application must be authorized to issue these scopes!</em>)</td>
+</tr>
+</tbody></table>
+
+<p><strong>Example</strong></p>
+
+<pre class="code graphql"><code class="graphql">{
+  createToken(input: {
+    application: {
+      id: &quot;6cc8b666-aa57-4933-8899-0205c9eeeb7c&quot;,
+      key: &quot;7c5b4002adb254df96c8a40fe98863f39f2a32324ac26bcd5de27a5dc4e76a22ec9616cd7f074d56e64f4d589e2b82e31c5f6995a454a5ec3d387a6342520234&quot;
+    },
+    scopes: [&quot;unicorn:hug&quot;, &quot;unicorn:ride&quot;, &quot;rainbow:create&quot;],
+    subject: &quot;Supercalifragilisticexpialidocious&quot;
+  }) {
+    token {
+      jwt
+    }
+  }
+}
+</code></pre>
+
+<h2>Services</h2>
+
+<p>Heimdallr provides a few helper &quot;services&quot; to assist with the creation &amp; management of applications and tokens.</p>
+
+<h3>Create Application (<code>Heimdallr::CreateApplication</code>)</h3>
+
+<p>This service allows you to quickly create a new JWT application.</p>
+
+<p><strong>Example</strong></p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_application'>application</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Heimdallr.html" title="Heimdallr (module)">Heimdallr</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Heimdallr/CreateApplication.html" title="Heimdallr::CreateApplication (class)">CreateApplication</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Heimdallr/CreateApplication.html#initialize-instance_method" title="Heimdallr::CreateApplication#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+    <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>My Little Pony</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='label'>scopes:</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>unicorn:create</span><span class='words_sep'> </span><span class='tstring_content'>unicorn:update</span><span class='words_sep'> </span><span class='tstring_content'>unicorn:hug</span><span class='words_sep'> </span><span class='tstring_content'>unicorn:ride</span><span class='words_sep'>]</span><span class='comma'>,</span>
+    <span class='label'>algorithm:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RS256</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='label'>ip:</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_remote_ip'>remote_ip</span>
+  <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'><span class='object_link'><a href="Heimdallr/CreateApplication.html#call-instance_method" title="Heimdallr::CreateApplication#call (method)">call</a></span></span>
+</code></pre>
+
+<h3>Create Token (<code>Heimdallr::CreateToken</code>)</h3>
+
+<p>This service allows you to quickly create a new JWT token.</p>
+
+<p><strong>Example</strong></p>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'># Create a new token, but do not encode it into a JWT string
+</span><span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Heimdallr.html" title="Heimdallr (module)">Heimdallr</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Heimdallr/CreateToken.html" title="Heimdallr::CreateToken (class)">CreateToken</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Heimdallr/CreateToken.html#initialize-instance_method" title="Heimdallr::CreateToken#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+    <span class='label'>application:</span> <span class='id identifier rubyid_application'>application</span><span class='comma'>,</span>
+    <span class='label'>scopes:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unicorn:ride</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='label'>expires_at:</span> <span class='int'>1</span><span class='period'>.</span><span class='id identifier rubyid_hour'>hour</span><span class='period'>.</span><span class='id identifier rubyid_from_now'>from_now</span><span class='comma'>,</span>
+    <span class='label'>subject:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Supercalifragilisticexpialidocious</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'><span class='object_link'><a href="Heimdallr/CreateToken.html#call-instance_method" title="Heimdallr::CreateToken#call (method)">call</a></span></span><span class='lparen'>(</span><span class='label'>encode:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+</code></pre>
+
+<h3>Decode Token (<code>Heimdallr::DecodeToken</code>)</h3>
+
+<p>This service is required to properly decode a JWT encoded string. Although its&#39; primary purpose 
+is for the <code>Authenticable</code> controller mixin, you are free to use it inside your application as well.</p>
+
+<p><strong>Example</strong></p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Heimdallr.html" title="Heimdallr (module)">Heimdallr</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Heimdallr/DecodeToken.html" title="Heimdallr::DecodeToken (class)">DecodeToken</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Heimdallr/DecodeToken.html#initialize-instance_method" title="Heimdallr::DecodeToken#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>JWT-ENCODED-STRING-GOES-HERE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>leeway:</span> <span class='int'>30</span><span class='period'>.</span><span class='id identifier rubyid_seconds'>seconds</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'><span class='object_link'><a href="Heimdallr/DecodeToken.html#call-instance_method" title="Heimdallr::DecodeToken#call (method)">call</a></span></span>
+</code></pre>
+
+<p>The following actions are performed when decoding a JWT token:</p>
+
+<ul>
+<li>The <code>iss</code> (Application ID) &amp; <code>jti</code> (Token ID) claims are fetched.</li>
+<li>A cache hit is done to avoid a database query to see if this token was used recently.</li>
+<li>The signature is verified to ensure that the token was not tampered with.</li>
+<li>The <code>exp</code> (Expiration) claim is fetched and used to ensure that the token is still valid.</li>
+<li>The <code>nbf</code> (Not Before) claim is checked to see if this token is valid yet (Optional)</li>
+</ul>
+
+<p><strong>Critical Issues</strong></p>
+
+<p>This service will raise a <code>Heimdallr::TokenError</code> exception if any of the following occur:</p>
+
+<ul>
+<li>The <code>iss</code> or <code>jti</code> claims do not exist.</li>
+<li>The token does not exist in the cache or database.</li>
+<li>The token is malformed (Missing header, payload or signature)</li>
+<li>The <code>exp</code> or <code>nbf</code> claims do not match what is stored in the database (Sanity checks)</li>
+</ul>
+
+<p><strong>Recoverable Issues</strong></p>
+
+<p>Even if an exception was not raised, you must still check to ensure that the token has no errors:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>if</span> <span class='id identifier rubyid_token'>token</span><span class='period'>.</span><span class='id identifier rubyid_token_errors?'>token_errors?</span>
+  <span class='comment'># TODO: Do something spectacular with the errors!
+</span>  <span class='id identifier rubyid_render'>render</span> <span class='label'>json:</span> <span class='lbrace'>{</span> <span class='label'>errors:</span> <span class='lbracket'>[</span><span class='op'>*</span><span class='id identifier rubyid_token'>token</span><span class='period'>.</span><span class='id identifier rubyid_token_errors'>token_errors</span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>status:</span> <span class='int'>420</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>Errors can be any of the following:</p>
+
+<ul>
+<li>The token was revoked (Message: <code>This token has been revoked. Please acquire a new token and try your request again.</code>)</li>
+<li>The token is expired (Message: <code>The provided JWT is expired. Please acquire a new token and try your request again.</code>)</li>
+<li>The <code>nbf</code> claim is in the future (Message: <code>The provided JWT is not valid yet and cannot be used.</code>)</li>
+</ul>
+
+<p><em>Note: The reason that exceptions are not raised for these events is so expired / revoked tokens can be accessed by an administrator or displayed on a UI without a convoluted amount of error handling</em></p>
+
+<h2>Development</h2>
+
+<p>To run the local engine server:</p>
+
+<pre class="code shell"><code class="shell">bundle install
+bundle exec rails server
+</code></pre>
+
+<h3>Testing</h3>
+
+<p>Run all the rspec unit tests by doing the following:</p>
+
+<p><em>Note: You must have a PostgreSQL server running locally before running this command!</em></p>
+
+<pre class="code shell"><code class="shell">bin/rails db:create db:migrate RAILS_ENV=test
+bundle exec rspec
+</code></pre>
+
+<h3>Update the README.md Table of Contents</h3>
+
+<p>Make sure you have doctoc installed:</p>
+
+<pre class="code shell"><code class="shell">npm install -g doctoc
+</code></pre>
+
+<p>Run the doctoc command in the project directory:</p>
+
+<pre class="code shell"><code class="shell">doctoc README.md --github
+</code></pre>
+
+<h3>Update the gem documentation</h3>
+
+<p>Ensure you have the yard gem installed:</p>
+
+<pre class="code shell"><code class="shell">gem install yard
+</code></pre>
+
+<p>Update the documentation by running the yard command in the project directory:</p>
+
+<pre class="code shell"><code class="shell">yard
+</code></pre>
+</div></div>
+
+      <div id="footer">
+  Generated on Thu May 18 15:42:10 2017 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.9 (ruby-2.3.3).
+</div>
+
+    </div>
+  </body>
+</html>

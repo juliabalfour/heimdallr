@@ -1,4 +1,13 @@
 module Heimdallr
+
+  # Heimdallr installation generator.
+  #
+  # **Usage**
+  #
+  # ```shell
+  # rails g heimdallr:install
+  # ```
+  #
   class InstallGenerator < Rails::Generators::Base
     source_root File.expand_path('../templates', __FILE__)
 

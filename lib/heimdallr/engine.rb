@@ -2,6 +2,8 @@ require 'attr_encrypted'
 require 'active_support/cache'
 
 module Heimdallr
+
+  # Implements a Rails engine.
   class Engine < ::Rails::Engine
     config.eager_load_paths += Dir['#{config.root}/lib/**/']
     isolate_namespace Heimdallr

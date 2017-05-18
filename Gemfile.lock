@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heimdallr (1.0.0)
+    heimdallr (1.5.0)
       attr_encrypted (~> 3.0.0)
       graphql (>= 1.5.13, < 2)
       jwt (~> 1.5.6, < 2)
@@ -69,6 +69,7 @@ GEM
     generator_spec (0.9.3)
       activesupport (>= 3.0.0)
       railties (>= 3.0.0)
+    github-markup (1.6.0)
     globalid (0.4.0)
       activesupport (>= 4.2.0)
     graphiql-rails (1.4.1)
@@ -126,6 +127,7 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
+    redcarpet (3.4.0)
     rspec-core (3.6.0)
       rspec-support (~> 3.6.0)
     rspec-expectations (3.6.0)
@@ -173,6 +175,7 @@ GEM
     websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
+    yard (0.9.9)
 
 PLATFORMS
   ruby
@@ -182,16 +185,19 @@ DEPENDENCIES
   database_cleaner (~> 1.5.3)
   faker
   generator_spec (~> 0.9.3)
+  github-markup
   graphiql-rails
   heimdallr!
   pg (~> 0.20)
   puma (~> 3.7)
   rails (~> 5.1.0)
   rake (>= 11.3.0)
+  redcarpet
   rspec-rails
   shoulda-matchers
   spring
   spring-watcher-listen (~> 2.0.0)
+  yard
 
 BUNDLED WITH
    1.14.6

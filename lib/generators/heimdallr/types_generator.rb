@@ -1,4 +1,13 @@
 module Heimdallr
+
+  # Heimdallr GraphQL types generator.
+  #
+  # **Usage**
+  #
+  # ```shell
+  # rails g heimdallr:types
+  # ```
+  #
   class TypesGenerator < Rails::Generators::Base
     source_root File.expand_path('../templates/types', __FILE__)
 

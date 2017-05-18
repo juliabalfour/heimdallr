@@ -1,6 +1,16 @@
 require 'jwt'
 
 module Heimdallr
+
+  # This class is used to create, update & delete JWT tokens.
+  #
+  # @attr [Array<String>] token_errors Populated when a token record is loaded from the database.
+  # @attr [String] audience Optional JWT audience claim.
+  # @attr [String] subject Optional JWT subject claim.
+  # @attr [Array<String>] scopes An array of scopes that the token was issued.
+  # @attr [DateTime] revoked_at The DateTime that this token was revoked at.
+  # @attr_reader [String] application_secret The secret for the application that owns this token.
+  # @attr_reader [OpenSSL::PKey::RSA] application_certificate The RSA certificate for the application that owns this token.
   class Token < ActiveRecord::Base
     belongs_to :application
 
@@ -13,14 +23,18 @@ module Heimdallr
 
     delegate :algorithm, :secret, :certificate, to: :application, prefix: true
 
+    # Finder method used to find a token by the `jti` & `iss` claims.
+    #
+    # @param [String] id The token ID.
+    # @param [String] application_id The application ID.
     def self.by_ids!(id:, application_id:)
       where(id: id, application_id: application_id).limit(1).take!
     end
 
     # Creates a string that can be used as a cache key.
     #
-    # @param [String] id
-    # @param [String] application
+    # @param [String] id The token ID.
+    # @param [String] application The application ID.
     # @return [String]
     def self.cache_key(id:, application:)
       [application, id].join(':')
@@ -38,7 +52,7 @@ module Heimdallr
 
     # Revokes this token & persists to the database.
     def revoke!
-      self.revoked_at = Time.now.utc
+      revoke
       save!
     end
 
@@ -56,15 +70,15 @@ module Heimdallr
 
     # Refreshes this token by a given amount of time & persists to the database.
     #
-    # @param [Integer]
+    # @param [Integer] amount
     def refresh!(amount: 30.minutes)
-      self.expires_at = expires_at + amount
+      refresh
       save!
     end
 
     # Refreshes this token by a given amount of time but does NOT persist to the database.
     #
-    # @param [Integer]
+    # @param [Integer] amount
     def refresh(amount: 30.minutes)
       self.expires_at = expires_at + amount
     end

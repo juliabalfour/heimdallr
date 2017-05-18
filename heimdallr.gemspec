@@ -24,6 +24,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'attr_encrypted', '~> 3.0.0'
   spec.add_dependency 'jwt', '~> 1.5.6', '< 2'
 
+  spec.add_development_dependency 'yard'
+  spec.add_development_dependency 'redcarpet'
+  spec.add_development_dependency 'github-markup'
+
   spec.add_development_dependency 'faker'
   spec.add_development_dependency 'spring'
   spec.add_development_dependency 'coveralls'

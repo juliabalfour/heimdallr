@@ -1,15 +1,25 @@
 module Heimdallr
+
+  # This class allows you to quickly create a new JWT token.
+  #
+  # @example
+  #   token = Heimdallr::CreateToken.new(
+  #       application: application,
+  #       scopes: 'unicorn:ride',
+  #       expires_at: 1.hour.from_now,
+  #       subject: 'Supercalifragilisticexpialidocious'
+  #     ).call(encode: false)
+  #
   class CreateToken
 
-    # Constructor
-    #
     # @param [Application, Hash] application Either an application object or a hash containing an `:id` & `:key` key.
     # @param [Array] scopes The scopes that this token can access.
     # @param [DateTime] expires_at When this token expires.
     # @param [DateTime] not_before Optional datetime that the token will become active on.
     # @param [String] subject Optional token subject.
-    # @param [String] audience
+    # @param [String] audience Optional token audience.
     # @param [Hash] data Optional data to attach to this token.
+    # @raise [ArgumentError] If the `application` hash is missing either the `:id` or `:key` keys.
     def initialize(application:, scopes:, expires_at: nil, not_before: nil, subject: nil, audience: nil, data: {})
       if application.is_a?(Hash)
         raise ArgumentError, 'application input must contain `:id` & `:key` symbol keys.' unless application.key?(:id) && application.key?(:key)
@@ -33,8 +43,12 @@ module Heimdallr
       @data       = data
     end
 
+    # Attempts to create a new token, will raise an ActiveRecord exception upon failure.
+    #
     # @param [Boolean] encode Whether or not the returned token should be encoded.
-    # @return [String, Token] Returned a JWT string when the encode argument is true, Token object otherwise.
+    # @return [String, Token] Returned a JWT string when the `encode` argument is true, Token object otherwise.
+    # @raise [Heimdallr::TokenError] If the application is not authorized to issue the requested scopes.
+    # @raise [ActiveRecord::RecordInvalid]
     def call(encode: true)
       # ip_address = request.remote_ip
       # if @application.ip.present?
