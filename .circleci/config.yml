@@ -8,7 +8,7 @@ jobs:
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ""
-          POSTGRES_HOST: localhost
+          POSTGRES_HOST: postgres
           RAILS_ENV: test
 
       - image: circleci/postgres:9.4.12-alpine
