@@ -78,7 +78,25 @@ gem 'heimdallr'
 rails g heimdallr:install
 ```
 
-This will install the Heimdallr initializer into `config/initializers/heimdallr.rb`.
+_This will install the Heimdallr initializer into `config/initializers/heimdallr.rb`._
+
+
+3) Include the `Heimdallr::Authenticable` module in your `ApplicationController`
+
+```ruby
+class ApplicationController < ActionController::API
+  include Heimdallr::Authenticable
+end
+```
+
+
+4) Add `before_action :heimdallr_authorize!` inside your GraphQL controller
+
+```ruby
+class GraphqlController < ApplicationController
+  before_action :heimdallr_authorize!
+end
+```
 
 ## What is a Heimdallr Application?
 
