@@ -10,7 +10,7 @@ Heimdallr.configure do |config|
   config.expiration_leeway = 30.seconds
 
   # The master encryption key
-  config.secret_key = 'b72f2be8be4f806e2c9f61171f8a4fedba747341c3aca5f2ef7795af702f4ade'
+  config.secret_key = '07e849a65101e44b4de3bf9306ac3eae836e1093ed53d28b333478ce4543edfa'
 
   # The default scopes to include for requests without a token (Optional)
   config.default_scopes = %w[view]

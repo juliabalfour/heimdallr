@@ -28,6 +28,15 @@ module Heimdallr
 
     validates :name, :scopes, :key, :secret, presence: true
 
+    enum algorithm: {
+      'HS256': 'HS256',
+      'HS384': 'HS384',
+      'HS512': 'HS512',
+      'RS256': 'RS256',
+      'RS384': 'RS384',
+      'RS512': 'RS512'
+    }, _prefix: true
+
     # Find an application by it's ID and key.
     #
     # @param [String] id The application ID.
