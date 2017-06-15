@@ -23,8 +23,11 @@ module Heimdallr
       @token ||= authenticate_request
     end
 
+    # Checks to see if the current request has a token & is valid.
+    #
+    # @return [Boolean]
     def valid_heimdallr_token?
-      heimdallr_token && !heimdallr_token.token_errors?
+      heimdallr_token&.token_errors?
     end
 
     private

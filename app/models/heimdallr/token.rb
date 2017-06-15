@@ -25,10 +25,10 @@ module Heimdallr
 
     # Finder method used to find a token by the `jti` & `iss` claims.
     #
-    # @param [String] id The token ID.
+    # @param [String] token_id The token ID.
     # @param [String] application_id The application ID.
-    def self.by_ids!(id:, application_id:)
-      where(id: id, application_id: application_id).limit(1).take!
+    def self.by_ids!(token_id:, application_id:)
+      where(id: token_id.to_s, application_id: application_id.to_s).limit(1).preload(:application).take!
     end
 
     # Creates a string that can be used as a cache key.
@@ -68,11 +68,19 @@ module Heimdallr
       !revoked_at.nil?
     end
 
+    # Checks whether or not this token is expired.
+    #
+    # @return [Boolean]
+    def expired?
+      leeway = Heimdallr.configuration.expiration_leeway
+      expires_at.to_i <= (Time.now.utc.to_i - leeway)
+    end
+
     # Refreshes this token by a given amount of time & persists to the database.
     #
     # @param [Integer] amount
     def refresh!(amount: 30.minutes)
-      refresh
+      refresh(amount: amount)
       save!
     end
 

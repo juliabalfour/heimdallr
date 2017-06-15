@@ -36,11 +36,11 @@ module Heimdallr
       jwt_id = payload.fetch('jti')
 
       db_token = Heimdallr.cache.fetch(Token.cache_key(id: jwt_id, application: issuer)) do
-        Token.by_ids!(id: jwt_id, application_id: issuer)
+        Token.by_ids!(token_id: jwt_id, application_id: issuer)
       end
 
       # Grab the algorithm & secret values to use for verification
-      algorithm = db_token.application_algorithm
+      algorithm = db_token.application.algorithm
       secret    = db_token.application.secret_or_certificate
 
       # Verify the JWT signature to help ensure the token has not been tampered with

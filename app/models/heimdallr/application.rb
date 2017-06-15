@@ -32,8 +32,8 @@ module Heimdallr
     #
     # @param [String] id The application ID.
     # @param [String] key The application key.
-    def self.by_id_and_key!(id:, key:)
-      where(id: id, key: key).take!
+    def self.by_id_and_key(id:, key:)
+      find_by(id: id, key: key)
     end
 
     # Creates a string that can be used as a cache key.
@@ -71,7 +71,7 @@ module Heimdallr
     #
     # @raise [StandardError] If this application does not use RSA for cryptographic signing.
     def regenerate_certificate!
-      raise StandardError, 'This application does not use RSA for cryptographic signing' unless %w[RS256 RS384 RS512].include?(algorithm)
+      return unless %w[RS256 RS384 RS512].include?(algorithm)
       self.certificate = OpenSSL::PKey::RSA.generate(2048).to_s
       save!
     end
@@ -80,7 +80,7 @@ module Heimdallr
     #
     # @return [OpenSSL::PKey::RSA]
     # @raise [StandardError] If this application does not use RSA for cryptographic signing.
-    def certificate
+    def rsa
       raise StandardError, 'This application does not use RSA for cryptographic signing' unless %w[RS256 RS384 RS512].include?(algorithm)
       OpenSSL::PKey::RSA.new(super)
     end

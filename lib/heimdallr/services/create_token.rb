@@ -29,7 +29,7 @@ module Heimdallr
 
         # Try to find the application & verify the provided key
         @application = Heimdallr.cache.fetch(Application.cache_key(id: id, key: key)) do
-          Application.by_id_and_key!(id: id, key: key)
+          Application.by_id_and_key(id: id, key: key)
         end
       else
         @application = application

@@ -28,6 +28,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'redcarpet'
   spec.add_development_dependency 'github-markup'
 
+  # Used for CircleCI unit testing
+  spec.add_development_dependency 'ci_reporter'
+  spec.add_development_dependency 'ci_reporter_rspec'
+  spec.add_development_dependency 'rspec_junit_formatter'
+
   spec.add_development_dependency 'faker'
   spec.add_development_dependency 'spring'
   spec.add_development_dependency 'coveralls'
@@ -38,6 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'shoulda-matchers'
   spec.add_development_dependency 'rake', '>= 11.3.0'
   spec.add_development_dependency 'rails', '~> 5.1.0'
+  spec.add_development_dependency 'rspec-graphql_matchers'
   spec.add_development_dependency 'generator_spec', '~> 0.9.3'
   spec.add_development_dependency 'database_cleaner', '~> 1.5.3'
   spec.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
