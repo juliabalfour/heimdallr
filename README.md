@@ -4,6 +4,8 @@
 >
 > ― Douglas Adams, The Hitchhiker's Guide to the Galaxy
 
+[![CircleCI](https://circleci.com/gh/nater540/heimdallr.svg?style=svg)](https://circleci.com/gh/nater540/heimdallr)
+
 Heimdallr is a [JWT](https://jwt.io/ "JSON Web Token") authorization gem strictly designed for Rails 5 GraphQL API projects. 
 
 While there are a handful of other projects that provide authorization and/or JWT support, none of them fit my specific needs:

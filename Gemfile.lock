@@ -3,7 +3,6 @@ PATH
   specs:
     heimdallr (1.5.0)
       attr_encrypted (~> 3.0.0)
-      graphql (>= 1.5.13, < 2)
       jwt (~> 1.5.6, < 2)
       railties (>= 5.1.0, < 5.2)
 
@@ -203,6 +202,7 @@ DEPENDENCIES
   generator_spec (~> 0.9.3)
   github-markup
   graphiql-rails
+  graphql (>= 1.5.13, < 2)
   heimdallr!
   pg (~> 0.20)
   puma (~> 3.7)
