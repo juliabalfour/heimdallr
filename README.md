@@ -4,6 +4,20 @@
 >
 > ― Douglas Adams, The Hitchhiker's Guide to the Galaxy
 
+Heimdallr is a [JWT](https://jwt.io/ "JSON Web Token") authorization gem strictly designed for Rails 5 GraphQL API projects. 
+
+While there are a handful of other projects that provide authorization and/or JWT support, none of them fit my specific needs:
+ - No built-in GUI.
+ - Scope based permissions.
+ - Revocable & refreshable tokens.
+ - Support for both HMAC & RSA encryption.
+ - And (most importantly) support for the amazing [GraphQL gem](https://github.com/rmosolgo/graphql-ruby).
+
+Please keep in mind that this project is very much a work-in-progress, and it might not even work for some users. Feel free suggest changes and improvements!
+
+**WARNING: Heimdallr only supports PostgreSQL 9.4 and higher!**
+While it would be fairly trivial to support other RDBMS, I currently only use PostgreSQL in my office.
+
 ## Table of Contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -11,6 +25,7 @@
 
 
 - [Installing / Getting Started](#installing--getting-started)
+- [What is a Heimdallr Application?](#what-is-a-heimdallr-application)
 - [Configuration](#configuration)
   - [JWT Algorithm (`default_algorithm`)](#jwt-algorithm-default_algorithm)
     - [HMAC](#hmac)
@@ -45,22 +60,36 @@
 Heimdallr is cryptographically signed. To be sure the gem you install has not been tampered with, add the Heimdallr public key (if you have not already) as a trusted certificate:
 
 ```shell
-gem cert --add <(curl -Ls https://raw.github.com/juliabalfour/heimdallr/master/certs/heimdallr.pem)
+gem cert --add <(curl -Ls https://raw.githubusercontent.com/nater540/heimdallr/master/certs/heimdallr.pem)
 ```
 
-Put this in your Gemfile:
+1) Put this in your Gemfile:
 
 ```ruby
-gem heimdallr
+gem 'heimdallr'
 ```
 
-Run the installation generator with:
+
+2) Run the installation generator:
 
 ```shell
 rails g heimdallr:install
 ```
 
 This will install the Heimdallr initializer into `config/initializers/heimdallr.rb`.
+
+## What is a Heimdallr Application?
+
+_Admittedly "Application" is not the best term that I could have used, but I digress..._
+
+Simply put, an application is a class that may issue, renew & revoke JWT tokens with specific permissions.
+
+For example, you have two separate applications that both access a shared API:
+
+  - A client-facing website that can list all users, but it cannot create or delete anything.
+  - An admin portal that can create, read, update & delete users.
+  
+For (hopefully) obvious security reasons, the client-facing website application should not be permitted to issue tokens with the `create:users` or `obliterate:users` scopes.
 
 ## Configuration
 
@@ -117,7 +146,7 @@ Available Algorithms:
 You may retrieve the certificate object from the application by doing the following:
 
 ```ruby
-application.certificate
+application.rsa
 ```
 
 ### Expiration Time (`expiration_time`)
