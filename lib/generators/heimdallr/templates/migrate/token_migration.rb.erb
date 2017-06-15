@@ -1,6 +1,6 @@
-class CreateHeimdallrTokens < ActiveRecord::Migration[5.1]
+class HeimdallrCreate<%= table_name.camelize %> < ActiveRecord::Migration<%= "[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]" %>
   def change
-    create_table :heimdallr_tokens, id: :uuid do |t|
+    create_table :<%= table_name %> do |t|
       t.references :application, type: :uuid, index: true
 
       t.string :scopes, null: false, default: '{}', array: true

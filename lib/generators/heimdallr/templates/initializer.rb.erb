@@ -1,5 +1,11 @@
 Heimdallr.configure do |config|
 
+  # The application model class name to use
+  config.application_model = Application
+
+  # The token model class name to use
+  config.token_model = Token
+
   # The default JWT algorithm to use
   config.default_algorithm = 'HS512'
 

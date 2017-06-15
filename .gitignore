@@ -5,6 +5,7 @@
 .DS_Store
 
 log/*.log
+coverage/
 pkg/
 
 spec/dummy/log/*.log

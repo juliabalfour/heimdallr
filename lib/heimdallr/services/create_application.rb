@@ -30,7 +30,7 @@ module Heimdallr
     # @return [Application]
     # @raise [ActiveRecord::RecordInvalid]
     def call
-      Application.create!(ip: @ip, name: @name, secret: @secret, scopes: @scopes, algorithm: @algorithm)
+      Heimdallr.configuration.application_model.create!(ip: @ip, name: @name, secret: @secret, scopes: @scopes, algorithm: @algorithm)
     end
   end
 end

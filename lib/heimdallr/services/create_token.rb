@@ -27,9 +27,11 @@ module Heimdallr
         key = application[:key]
         id  = application[:id]
 
+        application_model = Heimdallr.configuration.application_model
+
         # Try to find the application & verify the provided key
-        @application = Heimdallr.cache.fetch(Application.cache_key(id: id, key: key)) do
-          Application.by_id_and_key!(id: id, key: key)
+        @application = Heimdallr.cache.fetch(application_model.cache_key(id: id, key: key)) do
+          application_model.by_id_and_key(id: id, key: key)
         end
       else
         @application = application
@@ -55,7 +57,7 @@ module Heimdallr
 
       # end
 
-      token = Token.create(
+      token = Heimdallr.configuration.token_model.create(
         application: @application,
         expires_at: @expires_at || Heimdallr.configuration.expiration_time.call,
         not_before: @not_before,

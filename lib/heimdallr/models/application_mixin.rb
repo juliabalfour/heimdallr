@@ -1,10 +1,6 @@
 module Heimdallr
 
-  # This class is used to create, update & delete JWT applications, it does per-attribute encryption for both the secret & certificate fields.
-  #
-  # @example Create a new application
-  #   # Note: Generally you should NOT provide a `key`, `secret` or `certificate` attribute since these will be automatically generated!
-  #   Heimdallr::Application.create(name: 'Buffalo Buffalo Buffalo Buffalo Buffalo!', algorithm: 'HS512')
+  # It does per-attribute encryption for both the secret & certificate fields.
   #
   # @attr [String] secret Used for cryptographically signing JWT tokens when the algorithm is HMAC.
   # @attr [String] name The application name.
@@ -13,36 +9,21 @@ module Heimdallr
   # @attr [Array<String>] scopes The scopes that the application is authorized to issue.
   # @attr [String] key A unique string used when creating new tokens.
   # @attr [String] ip Token issue requests must come from this IP address, or they will be refused (Optional)
-  class Application < ActiveRecord::Base
-    attr_encrypted_options.merge!(encode: false, encode_iv: false, encode_salt: false)
-    attr_encrypted :secret,      key: Heimdallr.configuration.secret_key
-    attr_encrypted :certificate, key: Heimdallr.configuration.secret_key
+  module ApplicationMixin
+    extend ActiveSupport::Concern
 
-    has_many :tokens
+    included do
+      attr_encrypted_options.merge!(encode: false, encode_iv: false, encode_salt: false)
+      attr_encrypted :secret,      key: Heimdallr.configuration.secret_key
+      attr_encrypted :certificate, key: Heimdallr.configuration.secret_key
 
-    attribute :secret
-    attribute :certificate
+      attribute :certificate
+      attribute :secret
 
-    before_validation :generate_key, :generate_secret, on: :create
-    before_save :check_scopes, :clear_cache
+      before_validation :generate_key, :generate_secret, on: :create
+      before_save :check_scopes, :clear_cache
 
-    validates :name, :scopes, :key, :secret, presence: true
-
-    # Find an application by it's ID and key.
-    #
-    # @param [String] id The application ID.
-    # @param [String] key The application key.
-    def self.by_id_and_key!(id:, key:)
-      where(id: id, key: key).take!
-    end
-
-    # Creates a string that can be used as a cache key.
-    #
-    # @param [String] id The token ID.
-    # @param [String] key The application key.
-    # @return [String]
-    def self.cache_key(id:, key:)
-      [key, id].join(':')
+      validates :scopes, :key, :secret, presence: true
     end
 
     # Set the scopes for this application.
@@ -52,7 +33,7 @@ module Heimdallr
       value = value.split if value.is_a?(String)
       value = value.uniq  if value.is_a?(Array)
       value = value.all   if value.is_a?(Auth::Scopes)
-      super(value)
+      self[:scopes] = value
     end
 
     # Regenerates the secret key.
@@ -79,24 +60,20 @@ module Heimdallr
     # Gets the RSA certificate for this application.
     #
     # @return [OpenSSL::PKey::RSA]
-    # @raise [StandardError] If this application does not use RSA for cryptographic signing.
-    def certificate
+    def rsa
       raise StandardError, 'This application does not use RSA for cryptographic signing' unless %w[RS256 RS384 RS512].include?(algorithm)
-      OpenSSL::PKey::RSA.new(super)
+      OpenSSL::PKey::RSA.new(certificate)
     end
 
     # Getter for returning the secret or a OpenSSL certificate.
     #
     # @return [String, OpenSSL::PKey]
     def secret_or_certificate
-      if %w[HS256 HS384 HS512].include?(algorithm)
-        secret
-      elsif %w[RS256 RS384 RS512].include?(algorithm)
-        OpenSSL::PKey::RSA.new(certificate)
-      elsif %w[ES256 ES384 ES512].include?(algorithm)
-        # TODO: ECDSA encryption does not work at this time
-        raise ArgumentError, 'ECDSA encryption has not been implemented'
+      if %w[RS256 RS384 RS512].include?(algorithm)
+        return OpenSSL::PKey::RSA.new(certificate)
       end
+
+      secret
     end
 
     private
@@ -112,7 +89,7 @@ module Heimdallr
       self.secret = excessively_random_string
     end
 
-    # Bordering on pointlessly random string generator.
+    # Bordering on pointlessly excessive random string generator.
     #
     # @return [String]
     def excessively_random_string

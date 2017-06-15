@@ -1,0 +1,27 @@
+class AddHeimdallr<%= table_name.camelize %> < ActiveRecord::Migration<%= "[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]" %>
+  def up
+    change_table :<%= table_name %> do |t|
+      t.references :application, type: :uuid, index: true
+
+      t.string :scopes, null: false, default: '{}', array: true
+      t.column :data, :jsonb, null: false, default: {}
+
+      t.inet :ip, null: true
+      t.datetime :created_at, null: false
+      t.datetime :expires_at, null: false
+      t.datetime :revoked_at, null: true
+      t.datetime :not_before, null: true
+    end
+  end
+
+  def down
+    remove_column :<%= table_name %>, :application_id
+    remove_column :<%= table_name %>, :scopes
+    remove_column :<%= table_name %>, :data
+    remove_column :<%= table_name %>, :ip
+    remove_column :<%= table_name %>, :created_at
+    remove_column :<%= table_name %>, :expires_at
+    remove_column :<%= table_name %>, :revoked_at
+    remove_column :<%= table_name %>, :not_before
+  end
+end

@@ -1,15 +1,15 @@
-class CreateHeimdallrApplications < ActiveRecord::Migration[5.1]
+class HeimdallrCreate<%= table_name.camelize %> < ActiveRecord::Migration<%= "[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]" %>
   def up
     execute <<-SQL
-      CREATE TYPE heimdallr_algorithms AS ENUM ('HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512');
+      CREATE TYPE jwt_algorithms AS ENUM ('HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512');
     SQL
 
-    create_table :heimdallr_applications, id: :uuid do |t|
+    create_table :<%= table_name %> do |t|
       t.string :name,   null: false
       t.string :key,    null: false, index: :unique
       t.string :scopes, null: false, default: '{}', array: true
 
-      t.column :algorithm, :heimdallr_algorithms, null: false, default: 'RS256'
+      t.column :algorithm, :jwt_algorithms, null: false, default: 'RS256'
 
       t.binary :encrypted_secret,         null: false
       t.binary :encrypted_secret_iv,      null: false
@@ -17,16 +17,14 @@ class CreateHeimdallrApplications < ActiveRecord::Migration[5.1]
       t.binary :encrypted_certificate_iv, null: true
 
       t.inet :ip, null: true
-
-      t.timestamps
     end
   end
 
   def down
-    drop_table :heimdallr_applications
+    drop_table :<%= table_name %>
 
     execute <<-SQL
-      DROP TYPE heimdallr_algorithms;
+      DROP TYPE jwt_algorithms;
     SQL
   end
 end

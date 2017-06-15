@@ -1,0 +1,13 @@
+machine:
+  timezone:
+    UTC
+
+  ruby:
+    version: 2.3.3
+
+dependencies:
+  override:
+      - bundle install: # note ':' here
+          timeout: 180
+          # IMPORTANT NOTE: ^^ the timeout modifier above must be
+          # double indented (four spaces) from the previous line

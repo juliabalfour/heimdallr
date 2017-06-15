@@ -26,7 +26,7 @@ module Heimdallr
   # @attr [String] secret_key The master encryption key.
   # @attr [Array<String>] default_scopes The default token scopes to use if no token is present.
   class Config
-    attr_accessor :default_algorithm, :expiration_time, :expiration_leeway, :secret_key, :default_scopes
+    attr_accessor :application_model, :token_model, :default_algorithm, :expiration_time, :expiration_leeway, :secret_key, :default_scopes
 
     # Constructor, sets default config values.
     def initialize

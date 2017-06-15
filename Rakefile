@@ -5,14 +5,13 @@ rescue LoadError
 end
 
 require 'rspec/core/rake_task'
+require 'ci/reporter/rake/rspec'
 
 desc 'Default: run specs.'
 task default: :spec
 
 desc 'Run all specs'
-RSpec::Core::RakeTask.new(:spec) do |config|
-  config.verbose = false
-end
+task :spec => 'ci:setup:rspec'
 
 APP_RAKEFILE = File.expand_path('../spec/dummy/Rakefile', __FILE__)
 load 'rails/tasks/engine.rake'

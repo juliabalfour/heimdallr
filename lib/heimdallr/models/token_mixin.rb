@@ -1,43 +1,36 @@
-require 'jwt'
-
 module Heimdallr
+  module TokenMixin
+    extend ActiveSupport::Concern
 
-  # This class is used to create, update & delete JWT tokens.
-  #
-  # @attr [Array<String>] token_errors Populated when a token record is loaded from the database.
-  # @attr [String] audience Optional JWT audience claim.
-  # @attr [String] subject Optional JWT subject claim.
-  # @attr [Array<String>] scopes An array of scopes that the token was issued.
-  # @attr [DateTime] revoked_at The DateTime that this token was revoked at.
-  # @attr_reader [String] application_secret The secret for the application that owns this token.
-  # @attr_reader [OpenSSL::PKey::RSA] application_certificate The RSA certificate for the application that owns this token.
-  class Token < ActiveRecord::Base
-    belongs_to :application
+    included do
+      after_find :verify_token_claims
+      before_save :check_scopes, :clear_cache
 
-    after_find :verify_token_claims
-    before_save :check_scopes, :clear_cache
+      attribute :token_errors, :string, array: true
+      attribute :audience, :string
+      attribute :subject,  :string
 
-    attribute :token_errors, :string, array: true
-    attribute :audience, :string
-    attribute :subject,  :string
-
-    delegate :algorithm, :secret, :certificate, to: :application, prefix: true
-
-    # Finder method used to find a token by the `jti` & `iss` claims.
-    #
-    # @param [String] id The token ID.
-    # @param [String] application_id The application ID.
-    def self.by_ids!(id:, application_id:)
-      where(id: id, application_id: application_id).limit(1).take!
+      delegate :algorithm, :secret, :certificate, to: :application, prefix: true
     end
 
-    # Creates a string that can be used as a cache key.
-    #
-    # @param [String] id The token ID.
-    # @param [String] application The application ID.
-    # @return [String]
-    def self.cache_key(id:, application:)
-      [application, id].join(':')
+    class_methods do
+
+      # Finder method used to find a token by the `jti` & `iss` claims.
+      #
+      # @param [String] id The token ID.
+      # @param [String] application_id The application ID.
+      def by_id_and_application(id:, application_id:)
+        find_by(id: id.to_s, application_id: application_id.to_s)
+      end
+
+      # Creates a string that can be used as a cache key.
+      #
+      # @param [String] id The token ID.
+      # @param [String] application The application ID.
+      # @return [String]
+      def cache_key(id:, application:)
+        [application.to_s, id.to_s].join(':')
+      end
     end
 
     # Set the scopes for this token.
@@ -47,40 +40,7 @@ module Heimdallr
       value = value.split if value.is_a?(String)
       value = value.uniq  if value.is_a?(Array)
       value = value.all   if value.is_a?(Auth::Scopes)
-      super(value)
-    end
-
-    # Revokes this token & persists to the database.
-    def revoke!
-      revoke
-      save!
-    end
-
-    # Revokes this token but does NOT persist to the database.
-    def revoke
-      self.revoked_at = Time.now.utc
-    end
-
-    # Checks whether or not this token has been revoked.
-    #
-    # @return [Boolean]
-    def revoked?
-      !revoked_at.nil?
-    end
-
-    # Refreshes this token by a given amount of time & persists to the database.
-    #
-    # @param [Integer] amount
-    def refresh!(amount: 30.minutes)
-      refresh
-      save!
-    end
-
-    # Refreshes this token by a given amount of time but does NOT persist to the database.
-    #
-    # @param [Integer] amount
-    def refresh(amount: 30.minutes)
-      self.expires_at = expires_at + amount
+      self[:scopes] = value
     end
 
     # Checks whether or not this token has specific scopes.
@@ -127,8 +87,6 @@ module Heimdallr
       secret    = application.secret_or_certificate
       JWT.encode(payload, secret, algorithm)
     end
-
-    private
 
     # Verifies that the token loaded from the database is valid and ready to be used.
     def verify_token_claims

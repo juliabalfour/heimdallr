@@ -18,6 +18,9 @@ module Heimdallr
   LIBRARY_PATH = File.join(File.dirname(__FILE__), 'heimdallr')
   autoload :Authenticable, File.join(LIBRARY_PATH, 'authenticable')
 
+  autoload :ApplicationMixin, File.join(LIBRARY_PATH, 'models', 'application_mixin')
+  autoload :TokenMixin,       File.join(LIBRARY_PATH, 'models', 'token_mixin')
+
   module Auth
     AUTH_PATH = File.join(LIBRARY_PATH, 'auth')
     autoload :Scopes, File.join(AUTH_PATH, 'scopes')

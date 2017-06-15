@@ -1,11 +1,18 @@
 $LOAD_PATH.unshift File.dirname(__FILE__)
 
+require 'simplecov'
+SimpleCov.start do
+  add_filter '/spec/'
+  add_group 'Models', 'app/models'
+end
+
 ENV['RAILS_ENV'] ||= 'test'
 
 require File.expand_path('../dummy/config/environment', __FILE__)
 
 require 'faker'
 require 'rspec/rails'
+require 'awesome_print'
 require 'database_cleaner'
 require 'shoulda-matchers'
 

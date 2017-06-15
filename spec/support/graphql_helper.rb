@@ -14,7 +14,7 @@ module GraphQL
       headers = {}
       headers[:authorization] = "Bearer #{token}" if token.present?
 
-      post('/graphql', JSON.generate(body), headers)
+      post('/graphql', body, headers)
     end
   end
 end
