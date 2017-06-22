@@ -4,6 +4,7 @@
 >
 > ― Douglas Adams, The Hitchhiker's Guide to the Galaxy
 
+[![Dependency Status](https://gemnasium.com/badges/github.com/nater540/heimdallr.svg)](https://gemnasium.com/github.com/nater540/heimdallr)
 [![CircleCI](https://circleci.com/gh/nater540/heimdallr.svg?style=svg)](https://circleci.com/gh/nater540/heimdallr)
 
 Heimdallr is a [JWT](https://jwt.io/ "JSON Web Token") authorization gem strictly designed for Rails 5 GraphQL API projects. 
