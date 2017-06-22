@@ -1,4 +1,5 @@
 module Mutations
+  # noinspection ALL
   module Tokens
     Create = GraphQL::Relay::Mutation.define do
       # noinspection RubyArgCount
@@ -12,11 +13,16 @@ module Mutations
         argument :key, !types.String
       end
 
+      # noinspection RubyResolve
       input_field :application, !ApplicationInputType
+      # noinspection RubyResolve
       input_field :audience,  types.String
+      # noinspection RubyResolve
       input_field :subject,   types.String
+      # noinspection RubyResolve
       input_field :scopes,    !types[types.String]
 
+      # noinspection RubyResolve
       return_field :token, Types::TokenType
 
       resolve ->(_, args, _) do

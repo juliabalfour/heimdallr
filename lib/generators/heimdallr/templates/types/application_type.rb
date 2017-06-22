@@ -1,3 +1,4 @@
+# noinspection ALL
 module Types
   ApplicationType = GraphQL::ObjectType.define do
     # noinspection RubyArgCount

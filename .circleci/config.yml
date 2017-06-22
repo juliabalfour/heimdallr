@@ -4,7 +4,7 @@ jobs:
   build:
     working_directory: ~/heimdallr
     docker:
-      - image: juliabalfour/ruby-common:0.3
+      - image: juliabalfour/ruby-common:0.9
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ""

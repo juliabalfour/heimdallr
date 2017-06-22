@@ -26,6 +26,18 @@ namespace :heimdallr do
     system 'bundle exec rails g heimdallr:install --force'
   end
 
+  desc 'Install Heimdallr JWT Application into dummy app'
+  task :application do
+    cd 'spec/dummy'
+    system 'bundle exec rails g heimdallr:application jwt_application --force'
+  end
+
+  desc 'Install Heimdallr JWT Token into dummy app'
+  task :token do
+    cd 'spec/dummy'
+    system 'bundle exec rails g heimdallr:token token --force'
+  end
+
   desc 'Install Heimdallr GraphQL types into dummy app'
   task :types do
     cd 'spec/dummy'

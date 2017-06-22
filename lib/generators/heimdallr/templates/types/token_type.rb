@@ -1,3 +1,4 @@
+# noinspection ALL
 module Types
   TokenType = GraphQL::ObjectType.define do
     # noinspection RubyArgCount
@@ -22,7 +23,8 @@ module Types
     end
 
     field :revokedAt, DateTimeType do
-      resolve ->(obj, _, _) { obj.revoked_at }
+      resolve ->(obj, _, _) # noinspection RubyResolve
+              { obj.revoked_at }
     end
 
     field :notBefore, DateTimeType do

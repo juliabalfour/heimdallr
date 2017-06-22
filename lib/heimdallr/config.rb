@@ -20,17 +20,19 @@ module Heimdallr
 
   # Heimdallr configuration class.
   #
+  # @attr [String] application_model The application model class to use.
+  # @attr [String] token_model The token model class to use.
   # @attr [String] default_algorithm The default JWT algorithm to use.
   # @attr [Proc] expiration_time The JWT expiration time to use.
   # @attr [Integer] expiration_leeway The JWT expiration leeway.
   # @attr [String] secret_key The master encryption key.
   # @attr [Array<String>] default_scopes The default token scopes to use if no token is present.
   class Config
-    attr_accessor :default_algorithm, :expiration_time, :expiration_leeway, :secret_key, :default_scopes
+    attr_accessor :application_model, :token_model, :default_algorithm, :expiration_time, :expiration_leeway, :secret_key, :default_scopes
 
     # Constructor, sets default config values.
     def initialize
-      @default_algorithm  = 'RS256'
+      @default_algorithm  = 'HS512'
       @expiration_time    = -> { 30.minutes.from_now.utc }
       @expiration_leeway  = 30.seconds
     end

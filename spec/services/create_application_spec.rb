@@ -9,10 +9,12 @@ module Heimdallr
         ).call
       end
 
-      it { expect(subject).to be_a(Application) }
-
       it 'generates a secret value' do
         expect(subject.secret).to be_a(String)
+      end
+
+      it 'generates a key' do
+        expect(subject.key).to be_a(String)
       end
 
       it 'does NOT generate a certificate' do
@@ -28,8 +30,6 @@ module Heimdallr
           algorithm: 'RS256'
         ).call
       end
-
-      it { expect(subject).to be_a(Application) }
 
       it 'generates a secret' do
         expect(subject.secret).to be_a(String)

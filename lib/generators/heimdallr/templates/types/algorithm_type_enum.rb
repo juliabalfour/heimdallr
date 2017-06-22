@@ -1,3 +1,4 @@
+# noinspection ALL
 module Types
   AlgorithmTypeEnum = GraphQL::EnumType.define do
     # noinspection RubyArgCount

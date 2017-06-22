@@ -1,3 +1,4 @@
+# noinspection ALL
 module Types
   DateTimeType = GraphQL::ScalarType.define do
     # noinspection RubyArgCount
@@ -6,6 +7,7 @@ module Types
 
     coerce_input ->(value, _ctx) { Time.iso8601(value).gmtime }
     coerce_result ->(value, _ctx) { value.to_s }
+    # noinspection RubyResolve
     default_scalar true
   end
 end

@@ -36,6 +36,7 @@ While it would be fairly trivial to support other RDBMS, I currently only use Po
   - [Expiration Leeway (`expiration_leeway`)](#expiration-leeway-expiration_leeway)
   - [Secret Key (`secret_key`)](#secret-key-secret_key)
   - [Default Scopes (`default_scopes`)](#default-scopes-default_scopes)
+- [Internationalization (I18n)](#internationalization-i18n)
 - [GraphQL Types](#graphql-types)
   - [Algorithm Enum (`Types::AlgorithmTypeEnum`)](#algorithm-enum-typesalgorithmtypeenum)
   - [Grant Enum (`Types::GrantTypeEnum`)](#grant-enum-typesgranttypeenum)
@@ -65,14 +66,14 @@ Heimdallr is cryptographically signed. To be sure the gem you install has not be
 gem cert --add <(curl -Ls https://raw.githubusercontent.com/nater540/heimdallr/master/certs/heimdallr.pem)
 ```
 
-1) Put this in your Gemfile:
+1) Put this in your Gemfile
 
 ```ruby
 gem 'heimdallr'
 ```
 
 
-2) Run the installation generator:
+2) Run the installation generator
 
 ```shell
 rails g heimdallr:install
@@ -81,7 +82,23 @@ rails g heimdallr:install
 _This will install the Heimdallr initializer into `config/initializers/heimdallr.rb`._
 
 
-3) Include the `Heimdallr::Authenticable` module in your `ApplicationController`
+3) Run the application migration generator
+
+```shell
+rails g heimdallr:application APPLICATION_MODEL_NAME
+```
+
+_Important: If you name your token class anything other than `token`, you will need to update the association inside the generated application model!_
+
+
+4) Run the token migration generator (Should be done **after** the application generator so the table name can be found)
+
+```shell
+rails g heimdallr:token TOKEN_MODEL_NAME
+```
+
+
+5) Include the `Heimdallr::Authenticable` module in your `ApplicationController`
 
 ```ruby
 class ApplicationController < ActionController::API
@@ -90,7 +107,7 @@ end
 ```
 
 
-4) Add `before_action :heimdallr_authorize!` inside your GraphQL controller
+6) Add `before_action :heimdallr_authorize!` inside your GraphQL controller
 
 ```ruby
 class GraphqlController < ApplicationController
@@ -220,6 +237,10 @@ However, if you do not provide any default scopes requests that do not have an `
 ```
 
 **Note:** You must provide a default scope if you plan to use the built-in GraphQL mutations for issuing tokens! 
+
+## Internationalization (I18n)
+
+Heimdallr supports I18n using the [Rails Internationalization (I18n) API](http://guides.rubyonrails.org/i18n.html "I18n API"). See `config/locales/en.yml` for further information.
 
 ## GraphQL Types
 

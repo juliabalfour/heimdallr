@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Heimdallr
   module Authenticable
     BEARER_TOKEN_REGEX = /^Bearer\s([a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]*)$/
@@ -27,7 +29,7 @@ module Heimdallr
     #
     # @return [Boolean]
     def valid_heimdallr_token?
-      heimdallr_token&.token_errors?
+      heimdallr_token && !heimdallr_token.token_errors?
     end
 
     private
@@ -37,7 +39,7 @@ module Heimdallr
     # @param [TokenError] error
     def heimdallr_render_error(error: nil)
       if error.blank?
-        error = heimdallr_token&.token_errors || [{ status: 401, source: { pointer: '/request/headers/authorization' }, title: 'Unauthorized', detail: 'Missing Authorization header.' }]
+        error = heimdallr_token&.token_errors || [{ status: 401, source: { pointer: '/request/headers/authorization' }, title: I18n.t(:unauthorized, scope: :errors), detail: I18n.t(:missing_auth_header, scope: :errors) }]
       end
 
       render json: { errors: [*error] }, status: 401
@@ -64,7 +66,7 @@ module Heimdallr
 
     # Creates a default token if `default_scopes` are set in the initializer.
     #
-    # @return [Token, nil]
+    # @return [Token, nil] If
     def create_default_token
       return nil if Heimdallr.configuration.default_scopes.blank?
       Token.new(scopes: [*Heimdallr.configuration.default_scopes]).freeze

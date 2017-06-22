@@ -1,3 +1,4 @@
+# noinspection ALL
 module Types
   UuidType = GraphQL::ScalarType.define do
     # noinspection RubyArgCount
@@ -6,6 +7,7 @@ module Types
 
     coerce_input ->(value, _ctx) { value =~ /[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}/ ? value : nil }
     coerce_result ->(value, _ctx) { value.to_s }
+    # noinspection RubyResolve
     default_scalar true
   end
 end

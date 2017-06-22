@@ -20,7 +20,6 @@ Gem::Specification.new do |spec|
   spec.signing_key = File.expand_path('~/.ssh/gem-private_key.pem') if $0 =~ /gem\z/
 
   spec.add_dependency 'railties', '>= 5.1.0', '< 5.2'
-  spec.add_dependency 'attr_encrypted', '~> 3.0.0'
   spec.add_dependency 'jwt', '~> 1.5.6', '< 2'
 
   spec.add_development_dependency 'yard'
@@ -28,13 +27,13 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'github-markup'
 
   # Used for CircleCI unit testing
+  spec.add_development_dependency 'coveralls'
   spec.add_development_dependency 'ci_reporter'
   spec.add_development_dependency 'ci_reporter_rspec'
   spec.add_development_dependency 'rspec_junit_formatter'
 
   spec.add_development_dependency 'faker'
   spec.add_development_dependency 'spring'
-  spec.add_development_dependency 'coveralls'
   spec.add_development_dependency 'rspec-rails'
   spec.add_development_dependency 'pg', '~> 0.20'
   spec.add_development_dependency 'puma', '~> 3.7'
@@ -42,7 +41,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'shoulda-matchers'
   spec.add_development_dependency 'rake', '>= 11.3.0'
   spec.add_development_dependency 'rails', '~> 5.1.0'
-  spec.add_development_dependency 'rspec-graphql_matchers'
   spec.add_development_dependency 'generator_spec', '~> 0.9.3'
   spec.add_development_dependency 'graphql', '>= 1.5.13', '< 2'
   spec.add_development_dependency 'database_cleaner', '~> 1.5.3'

@@ -5,7 +5,7 @@ module Heimdallr
   # @example
   #  application = Heimdallr::CreateApplication.new(
   #     name: 'My Little Pony',
-  #     scopes: %w[unicorn:create unicorn:update unicorn:hug unicorn:ride],
+  #     scopes: %w[pony:create pony:update pony:hug rainbow:generate],
   #     algorithm: 'RS256',
   #     ip: request.remote_ip
   #   ).call
@@ -27,10 +27,10 @@ module Heimdallr
 
     # Attempts to create the application, will raise an ActiveRecord exception upon failure.
     #
-    # @return [Application]
+    # @return [ActiveRecord::Base]
     # @raise [ActiveRecord::RecordInvalid]
     def call
-      Application.create!(ip: @ip, name: @name, secret: @secret, scopes: @scopes, algorithm: @algorithm)
+      Heimdallr.app_model.create!(ip: @ip, name: @name, secret: @secret, scopes: @scopes, algorithm: @algorithm)
     end
   end
 end

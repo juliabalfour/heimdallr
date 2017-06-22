@@ -52,10 +52,10 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 SET search_path = public, pg_catalog;
 
 --
--- Name: heimdallr_algorithms; Type: TYPE; Schema: public; Owner: -
+-- Name: jwt_algorithms; Type: TYPE; Schema: public; Owner: -
 --
 
-CREATE TYPE heimdallr_algorithms AS ENUM (
+CREATE TYPE jwt_algorithms AS ENUM (
     'HS256',
     'HS384',
     'HS512',
@@ -82,39 +82,18 @@ CREATE TABLE ar_internal_metadata (
 
 
 --
--- Name: heimdallr_applications; Type: TABLE; Schema: public; Owner: -
+-- Name: jwt_applications; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE heimdallr_applications (
+CREATE TABLE jwt_applications (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying NOT NULL,
     key character varying NOT NULL,
     scopes character varying[] DEFAULT '{}'::character varying[] NOT NULL,
-    algorithm heimdallr_algorithms DEFAULT 'RS256'::heimdallr_algorithms NOT NULL,
-    encrypted_secret bytea NOT NULL,
-    encrypted_secret_iv bytea NOT NULL,
-    encrypted_certificate bytea,
-    encrypted_certificate_iv bytea,
-    ip inet,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: heimdallr_tokens; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE heimdallr_tokens (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    application_id uuid,
-    scopes character varying[] DEFAULT '{}'::character varying[] NOT NULL,
-    data jsonb DEFAULT '{}'::jsonb NOT NULL,
-    ip inet,
-    created_at timestamp without time zone NOT NULL,
-    expires_at timestamp without time zone NOT NULL,
-    revoked_at timestamp without time zone,
-    not_before timestamp without time zone
+    secret character varying NOT NULL,
+    certificate text,
+    algorithm jwt_algorithms DEFAULT 'RS256'::jwt_algorithms NOT NULL,
+    ip inet
 );
 
 
@@ -128,6 +107,23 @@ CREATE TABLE schema_migrations (
 
 
 --
+-- Name: tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE tokens (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    application_id uuid,
+    scopes character varying[] DEFAULT '{}'::character varying[] NOT NULL,
+    data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    ip inet,
+    created_at timestamp without time zone NOT NULL,
+    expires_at timestamp without time zone NOT NULL,
+    revoked_at timestamp without time zone,
+    not_before timestamp without time zone
+);
+
+
+--
 -- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -136,19 +132,11 @@ ALTER TABLE ONLY ar_internal_metadata
 
 
 --
--- Name: heimdallr_applications heimdallr_applications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: jwt_applications jwt_applications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY heimdallr_applications
-    ADD CONSTRAINT heimdallr_applications_pkey PRIMARY KEY (id);
-
-
---
--- Name: heimdallr_tokens heimdallr_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY heimdallr_tokens
-    ADD CONSTRAINT heimdallr_tokens_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY jwt_applications
+    ADD CONSTRAINT jwt_applications_pkey PRIMARY KEY (id);
 
 
 --
@@ -160,17 +148,25 @@ ALTER TABLE ONLY schema_migrations
 
 
 --
--- Name: index_heimdallr_applications_on_key; Type: INDEX; Schema: public; Owner: -
+-- Name: tokens tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-CREATE INDEX index_heimdallr_applications_on_key ON heimdallr_applications USING btree (key);
+ALTER TABLE ONLY tokens
+    ADD CONSTRAINT tokens_pkey PRIMARY KEY (id);
 
 
 --
--- Name: index_heimdallr_tokens_on_application_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_jwt_applications_on_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_heimdallr_tokens_on_application_id ON heimdallr_tokens USING btree (application_id);
+CREATE INDEX index_jwt_applications_on_key ON jwt_applications USING btree (key);
+
+
+--
+-- Name: index_tokens_on_application_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tokens_on_application_id ON tokens USING btree (application_id);
 
 
 --
@@ -181,7 +177,7 @@ SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
 ('20170615200909'),
-('20170615203031'),
-('20170615203032');
+('20170621190510'),
+('20170622131552');
 
 

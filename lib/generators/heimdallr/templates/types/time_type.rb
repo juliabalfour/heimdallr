@@ -1,3 +1,4 @@
+# noinspection ALL
 module Types
   TimeType = GraphQL::ScalarType.define do
     # noinspection RubyArgCount
@@ -6,6 +7,7 @@ module Types
 
     coerce_input ->(value, _ctx) { Time.at(Float(value)).utc }
     coerce_result ->(value, _ctx) { value.to_f }
+    # noinspection RubyResolve
     default_scalar true
   end
 end

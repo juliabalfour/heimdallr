@@ -1,7 +1,7 @@
-class CreateHeimdallrTokens < ActiveRecord::Migration[5.1]
+class HeimdallrCreateTokens < ActiveRecord::Migration[5.1]
   def change
-    create_table :heimdallr_tokens, id: :uuid do |t|
-      t.references :application, type: :uuid, index: true
+    create_table :tokens, id: :uuid do |t|
+      t.belongs_to :application, type: :uuid, index: true
 
       t.string :scopes, null: false, default: '{}', array: true
       t.column :data, :jsonb, null: false, default: {}

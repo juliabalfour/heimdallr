@@ -1,5 +1,11 @@
 Heimdallr.configure do |config|
 
+  # The application model class to use
+  config.application_model = JwtApplication
+
+  # The token model class to use
+  config.token_model = Token
+
   # The default JWT algorithm to use
   config.default_algorithm = 'HS512'
 
@@ -10,7 +16,7 @@ Heimdallr.configure do |config|
   config.expiration_leeway = 30.seconds
 
   # The master encryption key
-  config.secret_key = '07e849a65101e44b4de3bf9306ac3eae836e1093ed53d28b333478ce4543edfa'
+  config.secret_key = '1c49dd380e6843c6685f18b37e454607'
 
   # The default scopes to include for requests without a token (Optional)
   config.default_scopes = %w[view]
