@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'jwt'
+
 module Heimdallr
   module TokenMixin
     extend ActiveSupport::Concern
