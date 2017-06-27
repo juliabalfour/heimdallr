@@ -7,12 +7,11 @@ module Heimdallr
     extend ActiveSupport::Concern
 
     included do
-      # noinspection RubyResolve
       after_find :verify_token_claims
-      # noinspection RubyResolve
-      before_save :check_scopes, :clear_cache
+      before_save :not_default, :check_scopes, :clear_cache
 
-      attribute :token_errors, :string, array: true
+      attribute :token_errors, :string, array: true, default: []
+      attribute :default_token, :boolean, default: false
       attribute :audience, :string
       attribute :subject,  :string
 
@@ -52,11 +51,16 @@ module Heimdallr
       token_errors.present?
     end
 
+    def default_token?
+      default_token
+    end
+
     # Encodes this token record into a JWT string.
     #
     # @return [String]
     def encode
-      raise StandardError, I18n.t(:not_persisted, scope: 'token.errors') unless persisted? && !changed?
+      raise StandardError, I18n.t(:not_persisted, scope: 'token.errors') unless persisted?
+      raise StandardError, I18n.t(:default_token, scope: 'token.errors') if default_token?
 
       payload = {
         iat: created_at.to_i,
@@ -78,10 +82,14 @@ module Heimdallr
     def verify_token_claims
       leeway = Heimdallr.configuration.expiration_leeway
 
-      self.token_errors = []
       token_errors << I18n.t(:revoked, scope: 'token.errors') if revoked?
       token_errors << I18n.t(:not_before, scope: 'token.errors') if not_before.present? && not_before.to_i > (Time.now.utc.to_i - leeway)
       token_errors << I18n.t(:expired, scope: 'token.errors') if expires_at.to_i <= (Time.now.utc.to_i - leeway)
+    end
+
+    # Used to hopefully prevent default tokens from being persisted to the database and/or throwing cryptic errors.
+    def not_default
+      raise StandardError, I18n.t(:default_token, scope: 'token.errors') if default_token?
     end
 
     # Checks to ensure that the application can issue a token with the requested scopes.

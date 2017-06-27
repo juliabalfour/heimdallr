@@ -80,11 +80,6 @@ describe Token do
       it 'encodes to a JWT string' do
         expect(subject.encode).to be_a(String)
       end
-
-      it 'raises an exception when encoding if changes have been made' do
-        subject.scopes = 'users:create'
-        expect { subject.encode }.to raise_error(StandardError, 'Token must be persisted to the database before encoded.')
-      end
     end
 
     context 'with a token that has NOT been persisted to the database' do

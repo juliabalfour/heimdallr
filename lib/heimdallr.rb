@@ -45,7 +45,7 @@ module Heimdallr
 
     # @return [ActiveSupport::Cache::Store]
     def cache
-      @cache ||= ActiveSupport::Cache::MemoryStore.new
+      @cache ||= ActiveSupport::Cache::NullStore.new
     end
 
     # Simple function for generating cache keys.

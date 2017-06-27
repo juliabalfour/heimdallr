@@ -69,7 +69,7 @@ module Heimdallr
     # @return [Token, nil] If
     def create_default_token
       return nil if Heimdallr.configuration.default_scopes.blank?
-      Token.new(scopes: [*Heimdallr.configuration.default_scopes]).freeze
+      Token.new(scopes: [*Heimdallr.configuration.default_scopes], default_token: true).freeze
     end
   end
 end

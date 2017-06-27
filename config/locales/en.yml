@@ -11,6 +11,7 @@ en:
       expired: 'The provided JWT is expired. Please acquire a new token and try your request again.'
       not_persisted: 'Token must be persisted to the database before encoded.'
       invalid_scopes: 'The application that owns this token unable to use following scope(s):'
+      default_token: 'Default tokens cannot be serialized or persisted.'
       unable_to_issue: 'Unable to issue token.'
       invalid: 'Invalid Token.'
 
