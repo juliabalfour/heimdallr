@@ -37,9 +37,13 @@ module Heimdallr
     # Renders a token error as JSON.
     #
     # @param [TokenError] error
-    def heimdallr_render_error(error: nil)
+    def heimdallr_render_error(error = nil)
       if error.blank?
-        error = heimdallr_token&.token_errors || [{ status: 401, source: { pointer: '/request/headers/authorization' }, title: I18n.t(:unauthorized, scope: :errors), detail: I18n.t(:missing_auth_header, scope: :errors) }]
+        error = heimdallr_token&.token_errors || [{
+                                                    source: { pointer: '/request/headers/authorization' },
+                                                    title: I18n.t(:unauthorized, scope: :errors),
+                                                    detail: I18n.t(:missing_auth_header, scope: :errors)
+                                                  }]
       end
 
       render json: { errors: [*error] }, status: 401
