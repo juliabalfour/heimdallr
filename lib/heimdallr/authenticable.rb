@@ -2,7 +2,7 @@
 
 module Heimdallr
   module Authenticable
-    BEARER_TOKEN_REGEX = /^Bearer\s([a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]*)$/
+    BEARER_TOKEN_REGEX = /^[B|b]earer\s([a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]*)$/
 
     # Authorizes the current request.
     # Many things may happen during this call:
