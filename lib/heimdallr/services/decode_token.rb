@@ -30,7 +30,8 @@ module Heimdallr
     def call
       return nil if @jwt.blank?
 
-      decoder = JWT::Decode.new(@jwt, nil, true, {})
+      # When upgrading ~> JWT 2.1.0 you *MUST* pass `true` for verify, otherwise the signature will not be decoded :|
+      decoder = JWT::Decode.new(@jwt, true)
       header, payload, signature, signing_input = decoder.decode_segments
 
       # Grab the issuer & token ID so we can check for blacklisted tokens
@@ -46,7 +47,7 @@ module Heimdallr
       secret    = db_token.application.secret_or_certificate
 
       # Verify the JWT signature to help ensure the token has not been tampered with
-      JWT.decode_verify_signature(secret, header, signature, signing_input, algorithm: algorithm)
+      JWT::Signature.verify(algorithm, secret, signing_input, signature)
       raise TokenError.new(title: I18n.t(:invalid, scope: 'token.errors'), detail: I18n.t(:incorrect_segments, scope: 'jwt.errors')) unless header && payload
 
       # Ensure that the expiration claim matches what we have stored in the database
@@ -69,7 +70,7 @@ module Heimdallr
       db_token.subject  = payload.fetch('sub', nil)
       db_token
 
-    rescue KeyError, ActiveRecord::RecordNotFound
+    rescue KeyError, ActiveRecord::RecordNotFound, JWT::VerificationError
       raise TokenError.new(title: I18n.t(:invalid, scope: 'token.errors'), detail: I18n.t(:generic, scope: 'token.errors'))
     end
   end

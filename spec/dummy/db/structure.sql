@@ -159,14 +159,14 @@ ALTER TABLE ONLY tokens
 -- Name: index_jwt_applications_on_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_jwt_applications_on_key ON jwt_applications USING btree (key);
+CREATE INDEX index_jwt_applications_on_key ON public.jwt_applications USING btree (key);
 
 
 --
 -- Name: index_tokens_on_application_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_tokens_on_application_id ON tokens USING btree (application_id);
+CREATE INDEX index_tokens_on_application_id ON public.tokens USING btree (application_id);
 
 
 --
