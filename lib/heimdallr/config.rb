@@ -1,3 +1,5 @@
+require 'dry-configurable'
+
 module Heimdallr
   extend Dry::Configurable
 
