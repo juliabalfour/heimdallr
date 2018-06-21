@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.cert_chain  = ['certs/heimdallr.pem']
   spec.signing_key = File.expand_path('~/.ssh/gem-private_key.pem') if $0 =~ /gem\z/
 
+  spec.add_dependency 'dry-configurable', '~> 0.7.0'
   spec.add_dependency 'railties', '~> 5.2'
   spec.add_dependency 'jwt', '~> 2.1'
 
@@ -36,7 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '>= 11.3.0'
   spec.add_development_dependency 'rails', '~> 5.2'
   spec.add_development_dependency 'generator_spec', '~> 0.9.3'
-  spec.add_development_dependency 'graphql', '>= 1.5.13', '< 2'
+  spec.add_development_dependency 'graphql', '>= 1.8.4', '< 2'
   spec.add_development_dependency 'database_cleaner', '~> 1.5.3'
   spec.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
 end

@@ -1,40 +1,27 @@
 module Heimdallr
+  extend Dry::Configurable
 
-  # Error class that is raised when the application did not create a Heimdallr initializer.
-  class MissingConfiguration < StandardError
-    def initialize
-      super 'Configuration for Heimdallr missing. Please create `config/initializers/heimdallr.rb`'
-    end
-  end
+  setting :application_model
 
-  # @return [Heimdallr::Config]
-  def self.configuration
-    @config || (raise MissingConfiguration)
-  end
+  setting :token_model
 
-  # @yieldparam [Heimdallr::Config] config
-  def self.configure
-    @config = Config.new
-    yield @config
-  end
+  setting :default_algorithm, 'HS512'
 
-  # Heimdallr configuration class.
-  #
-  # @attr [String] application_model The application model class to use.
-  # @attr [String] token_model The token model class to use.
-  # @attr [String] default_algorithm The default JWT algorithm to use.
-  # @attr [Proc] expiration_time The JWT expiration time to use.
-  # @attr [Integer] expiration_leeway The JWT expiration leeway.
-  # @attr [String] secret_key The master encryption key.
-  # @attr [Array<String>] default_scopes The default token scopes to use if no token is present.
-  class Config
-    attr_accessor :application_model, :token_model, :default_algorithm, :expiration_time, :expiration_leeway, :secret_key, :default_scopes
+  setting :expiration_time, -> { 30.minutes.from_now.utc }
 
-    # Constructor, sets default config values.
-    def initialize
-      @default_algorithm  = 'HS512'
-      @expiration_time    = -> { 30.minutes.from_now.utc }
-      @expiration_leeway  = 30.seconds
+  setting :expiration_leeway, 30.seconds
+
+  setting :secret_key
+
+  setting :default_scopes, []
+
+  setting :cache do
+    setting :backend, :memory
+
+    setting :redis do
+      setting :url
+      setting :namespace
+      setting :expires_in, 15.minutes
     end
   end
 end

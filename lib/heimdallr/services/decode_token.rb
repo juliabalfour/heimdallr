@@ -38,9 +38,12 @@ module Heimdallr
       issuer = payload.fetch('iss')
       jwt_id = payload.fetch('jti')
 
-      db_token = Heimdallr.cache.fetch(Heimdallr.cache_key(jwt_id, issuer)) do
-        Heimdallr.token_model.where(id: jwt_id, application_id: issuer).limit(1).preload(:application).take!
-      end
+      db_token = Heimdallr
+                   .token_model
+                   .where(id: jwt_id, application_id: issuer)
+                   .limit(1)
+                   .preload(:application)
+                   .take!
 
       # Grab the algorithm & secret values to use for verification
       algorithm = db_token.application.algorithm

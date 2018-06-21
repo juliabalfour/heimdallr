@@ -8,7 +8,7 @@ module Heimdallr
 
     included do
       after_find :verify_token_claims
-      before_save :not_default, :check_scopes, :clear_cache
+      before_save :not_default, :check_scopes
 
       attribute :token_errors, :string, array: true, default: []
       attribute :default_token, :boolean, default: false
@@ -102,12 +102,6 @@ module Heimdallr
       raise TokenError.new(title: I18n.t(:unable_to_issue, scope: 'token.errors'), detail: "#{I18n.t(:invalid_scopes, scope: 'token.errors')} #{invalid_scopes&.join(', ')}") unless invalid_scopes.empty?
 
       self.scopes = token_scopes.all
-    end
-
-    # Clears any cached token data & resets errors.
-    def clear_cache
-      self.token_errors = []
-      Heimdallr.cache.delete(Heimdallr.cache_key(id))
     end
   end
 end

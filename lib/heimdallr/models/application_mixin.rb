@@ -111,9 +111,13 @@ module Heimdallr
       self.scopes = scopes.all
     end
 
+    def cache_key
+      "#{self.id}:#{self.key}"
+    end
+
     # Clears any cached values for this application.
     def clear_cache
-      Heimdallr.cache.delete(Heimdallr.cache_key(id, key))
+      Heimdallr.cache.delete(cache_key)
     end
   end
 end

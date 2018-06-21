@@ -45,7 +45,12 @@ module Heimdallr
 
     # @return [ActiveSupport::Cache::Store]
     def cache
-      @cache ||= ActiveSupport::Cache::NullStore.new
+      @cache ||= case Heimdallr.config.cache.backend
+                   when :redis
+                     ActiveSupport::Cache::RedisCacheStore.new(Heimdallr.config.cache.redis)
+                   else
+                     ActiveSupport::Cache::MemoryStore.new
+                 end
     end
 
     # Simple function for generating cache keys.
