@@ -65,14 +65,14 @@ module Heimdallr
     #
     # @return [ActiveRecord::Base]
     def app_model
-      Heimdallr.configuration.application_model
+      Heimdallr.config.application_model
     end
 
     # Short-hand helper function to get the token model class.
     #
     # @return [ActiveRecord::Base]
     def token_model
-      Heimdallr.configuration.token_model
+      Heimdallr.config.token_model
     end
   end
 end

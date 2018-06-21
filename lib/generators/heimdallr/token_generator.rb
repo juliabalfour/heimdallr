@@ -71,7 +71,7 @@ module Heimdallr
     #
     # @return [String]
     def application_table_name
-      Heimdallr.configuration&.application_model&.name&.underscore&.singularize&.split('::')&.last || 'jwt_application'
+      Heimdallr.config&.application_model&.name&.underscore&.singularize&.split('::')&.last || 'jwt_application'
     end
   end
 end

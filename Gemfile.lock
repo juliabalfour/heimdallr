@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    heimdallr (2.0.1)
+    heimdallr (2.0.2)
       dry-configurable (~> 0.7.0)
       jwt (~> 2.1)
       railties (~> 5.2)

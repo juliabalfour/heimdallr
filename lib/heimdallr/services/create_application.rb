@@ -17,7 +17,7 @@ module Heimdallr
     # @param [String] secret It's a secret to everybody.
     # @param [String] algorithm The algorithm to use.
     # @param [String] ip The ip address this application is restricted to.
-    def initialize(name:, scopes:, secret: nil, algorithm: Heimdallr.configuration.default_algorithm, ip: nil)
+    def initialize(name:, scopes:, secret: nil, algorithm: Heimdallr.config.default_algorithm, ip: nil)
       @algorithm = algorithm
       @secret = secret
       @scopes = scopes

@@ -60,7 +60,7 @@ module Heimdallr
 
       Heimdallr.token_model.create!(
         application: @application,
-        expires_at: @expires_at || Heimdallr.configuration.expiration_time.call,
+        expires_at: @expires_at || Heimdallr.config.expiration_time.call,
         not_before: @not_before,
         audience: @audience,
         subject: @subject,

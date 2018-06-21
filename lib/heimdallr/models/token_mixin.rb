@@ -80,7 +80,7 @@ module Heimdallr
 
     # Verifies that the token loaded from the database is valid and ready to be used.
     def verify_token_claims
-      leeway = Heimdallr.configuration.expiration_leeway
+      leeway = Heimdallr.config.expiration_leeway
 
       token_errors << I18n.t(:revoked, scope: 'token.errors') if revoked?
       token_errors << I18n.t(:not_before, scope: 'token.errors') if not_before.present? && not_before.to_i > (Time.now.utc.to_i - leeway)

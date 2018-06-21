@@ -32,7 +32,7 @@ module Mutations
             scopes: args[:scopes],
             subject: args[:subject],
             audience: args[:audience],
-            expires_at: Heimdallr.configuration.expiration_time.call
+            expires_at: Heimdallr.config.expiration_time.call
           ).call
 
           { token: token }

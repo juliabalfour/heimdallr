@@ -18,7 +18,7 @@ module Heimdallr
     #
     # @param [String] jwt The JWT string to decode.
     # @param [Integer] leeway The leeway value to use for expiration & not-before claim verification.
-    def initialize(jwt, leeway: Heimdallr.configuration.expiration_leeway)
+    def initialize(jwt, leeway: Heimdallr.config.expiration_leeway)
       @leeway = leeway
       @jwt    = jwt
     end
